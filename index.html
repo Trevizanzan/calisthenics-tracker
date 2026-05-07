@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<title>Calisthenics Tracker — Muscle Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface-2: #1c1c1c;
+  --border: #2a2a2a;
+  --border-2: #3a3a3a;
+  --text: #f5f5f0;
+  --text-2: #a8a8a3;
+  --text-3: #6b6b66;
+  --accent: #d4ff3a;
+  --accent-dim: #9bbf00;
+  --warm: #ff7a45;
+  --cool: #5dc4ff;
+  --danger: #ff5470;
+  --radius: 6px;
+  --radius-lg: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body {
+  background-image:
+    radial-gradient(circle at 10% 0%, rgba(212, 255, 58, 0.06), transparent 40%),
+    radial-gradient(circle at 90% 100%, rgba(93, 196, 255, 0.04), transparent 50%);
+  background-attachment: fixed;
+}
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 18px 80px;
+}
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.brand-mark {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-3);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.brand-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(28px, 6vw, 38px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+.brand-title .accent { color: var(--accent); }
+.sync-pod {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-3);
+}
+.sync-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+}
+.sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-3);
+  flex-shrink: 0;
+}
+.sync-dot.ok { background: var(--accent); box-shadow: 0 0 8px var(--accent-dim); }
+.sync-dot.loading { background: var(--warm); animation: pulse 1.2s infinite; }
+.sync-dot.err { background: var(--danger); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.signin-btn {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.signin-btn:hover { background: #c0eb20; }
+.signout-btn {
+  background: transparent;
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+}
+.signout-btn:hover { color: var(--text); border-color: var(--text-3); }
+
+.date-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.date-bar label {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.date-bar input[type=date] {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  flex: 1;
+  cursor: pointer;
+  color-scheme: dark;
+}
+.date-bar input[type=date]:focus { outline: none; }
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.tab {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: all 0.15s;
+  color: var(--text-2);
+}
+.tab:hover { border-color: var(--border-2); color: var(--text); }
+.tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.tab-letter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+}
+.tab.active .tab-letter { opacity: 0.9; }
+.tab-name {
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+.warmup-banner {
+  background: linear-gradient(135deg, rgba(255, 122, 69, 0.08), rgba(255, 122, 69, 0.02));
+  border: 1px solid rgba(255, 122, 69, 0.25);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.warmup-title {
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--warm);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.warmup-icon { width: 14px; height: 14px; }
+.warmup-text {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+.warmup-text strong { color: var(--text); font-weight: 500; }
+
+.exercises { display: flex; flex-direction: column; gap: 12px; }
+.ex-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+}
+.ex-card.mobility {
+  border-color: rgba(93, 196, 255, 0.2);
+  background: linear-gradient(135deg, rgba(93, 196, 255, 0.04), transparent 50%);
+}
+.ex-header { margin-bottom: 14px; }
+.ex-tag {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-3);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.ex-card.mobility .ex-tag { color: var(--cool); }
+.ex-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 4px 0 4px;
+  letter-spacing: -0.01em;
+}
+.ex-desc {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+.ex-target {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent-dim);
+  margin-top: 6px;
+  padding: 2px 8px;
+  background: rgba(212, 255, 58, 0.06);
+  border-radius: 4px;
+}
+.ex-card.mobility .ex-target { color: var(--cool); background: rgba(93, 196, 255, 0.06); }
+
+.sets-list { display: flex; flex-direction: column; gap: 6px; }
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.set-label {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-3);
+  min-width: 30px;
+  letter-spacing: 0.05em;
+}
+.set-input, .set-textarea {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  transition: border-color 0.15s;
+}
+.set-input { width: 78px; }
+.set-input.note { flex: 1; min-width: 90px; }
+.set-input:focus, .set-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.set-input::placeholder, .set-textarea::placeholder { color: var(--text-3); }
+.set-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 50px;
+  font-family: inherit;
+}
+.del-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+.del-btn:hover { color: var(--danger); }
+
+.add-set {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px dashed var(--border-2);
+  border-radius: var(--radius);
+  color: var(--text-3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+}
+.add-set:hover { border-color: var(--accent); color: var(--accent); }
+
+.single-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.field.full { grid-column: 1 / -1; }
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  flex: 1;
+  min-width: 180px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 14px 20px;
+  border-radius: var(--radius-lg);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  transition: all 0.15s;
+}
+.btn-primary:hover { background: #c0eb20; }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  padding: 14px 20px;
+  border-radius: var(--radius-lg);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn-secondary:hover { color: var(--text); border-color: var(--text-3); }
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 36px 0 24px;
+}
+.history-title {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-3);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.history-empty {
+  font-size: 14px;
+  color: var(--text-3);
+  padding: 20px 0;
+  text-align: center;
+  font-style: italic;
+}
+.log {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.log-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.log-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.log-badge {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 100px;
+  letter-spacing: 0.05em;
+}
+.badge-A { background: rgba(212, 255, 58, 0.12); color: var(--accent); }
+.badge-B { background: rgba(255, 122, 69, 0.12); color: var(--warm); }
+.badge-C { background: rgba(93, 196, 255, 0.12); color: var(--cool); }
+.log-del {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+}
+.log-del:hover { color: var(--danger); }
+.log-ex { margin-bottom: 8px; }
+.log-ex:last-child { margin-bottom: 0; }
+.log-ex-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.log-sets {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-2);
+  margin-top: 3px;
+  line-height: 1.6;
+}
+.log-set { margin-right: 14px; white-space: nowrap; }
+.log-set em { color: var(--text-3); font-style: italic; }
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120%);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 12px 20px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 100;
+  box-shadow: 0 10px 40px rgba(212, 255, 58, 0.15);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.err { border-color: var(--danger); box-shadow: 0 10px 40px rgba(255, 84, 112, 0.15); }
+
+@media (max-width: 480px) {
+  .header { flex-direction: column; align-items: stretch; }
+  .sync-pod { align-items: flex-start; }
+  .tabs { gap: 6px; }
+  .tab { padding: 10px 8px; }
+  .tab-name { font-size: 12px; }
+  .actions { flex-direction: column; }
+  .btn-primary, .btn-secondary { min-width: 0; width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="brand-mark">/// training log</div>
+      <h1 class="brand-title">Muscle <span class="accent">Up</span></h1>
+    </div>
+    <div class="sync-pod" id="sync-pod">
+      <div class="sync-row">
+        <span class="sync-dot" id="sync-dot"></span>
+        <span id="sync-label">non connesso</span>
+      </div>
+      <button class="signin-btn" id="signin-btn" onclick="handleSignIn()">accedi con Google</button>
+    </div>
+  </header>
+
+  <div class="date-bar">
+    <label>data</label>
+    <input type="date" id="log-date">
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-session="A" onclick="switchSession('A')">
+      <div class="tab-letter">SESS. A</div>
+      <div class="tab-name">Esplosiva</div>
+    </button>
+    <button class="tab" data-session="B" onclick="switchSession('B')">
+      <div class="tab-letter">SESS. B</div>
+      <div class="tab-name">Range &amp; Volume</div>
+    </button>
+    <button class="tab" data-session="C" onclick="switchSession('C')">
+      <div class="tab-letter">SESS. C</div>
+      <div class="tab-name">Forza Base</div>
+    </button>
+  </div>
+
+  <div class="warmup-banner">
+    <div class="warmup-title">
+      <svg class="warmup-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      Riscaldamento polsi — sempre, non opzionale
+    </div>
+    <div class="warmup-text">
+      <strong>5 min prima della sessione:</strong> circle lenti (30 sec per verso) · carico progressivo a terra · pike push-up sulle fist. Traccia il tempo dedicato qui sotto, è parte dell'allenamento.
+    </div>
+  </div>
+
+  <div id="exercises-container" class="exercises"></div>
+
+  <div class="actions">
+    <button class="btn-primary" id="save-btn" onclick="saveLog()">Salva sessione</button>
+    <button class="btn-secondary" onclick="renderForm()">Cancella</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="history-title">// storico</div>
+  <div id="history-list"><div class="history-empty">accedi con Google per vedere lo storico</div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== CONFIG ==========
+// Sostituisci questo con il tuo OAuth Client ID dopo il setup Google Cloud
+const GOOGLE_CLIENT_ID = 'YOUR_CLIENT_ID_HERE.apps.googleusercontent.com';
+const FILE_NAME = 'calisthenics-tracker-data.json';
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+// ========== SESSIONS DATA ==========
+const SESSIONS = {
+  A: {
+    name: 'Sessione A — Qualità esplosiva',
+    exercises: [
+      { id:'mobA', name:'Mobilità polsi quotidiana', desc:'circle lenti + stretch in estensione (30-60s)', type:'single', mobility:true, fields:['min','note'], target:'1-2 min, ogni giorno' },
+      { id:'explA', name:'Pull-up esplosivi al petto', desc:'solo rep di qualità — se cali al mento, stop', type:'sets', fields:['rip','note'], target:'4×3, rec 3 min' },
+      { id:'zavorA', name:'Pull-up zavorrati lenti', desc:'eccentrica 4 sec', type:'sets', fields:['rip','kg','note'], target:'3×5 con 5–7.5 kg' },
+      { id:'fgripA', name:'False grip hang', desc:'polso sopra la sbarra', type:'sets', fields:['sec','note'], target:'3×20 sec' },
+    ]
+  },
+  B: {
+    name: 'Sessione B — Range e volume',
+    exercises: [
+      { id:'mobB', name:'Mobilità polsi quotidiana', desc:'circle lenti + stretch in estensione (30-60s)', type:'single', mobility:true, fields:['min','note'], target:'1-2 min, ogni giorno' },
+      { id:'explB', name:'Pull-up esplosivi assistiti (loop)', desc:"obiettivo: arrivare all'addome su tutte le rep", type:'sets', fields:['rip','loop','note'], target:'4×4, rec 2 min' },
+      { id:'pikeB', name:'Pike push up (piedi sul letto)', desc:'busto verticale, fai i circle prima!', type:'sets', fields:['rip','note'], target:'3×8–10, rec 90 sec' },
+      { id:'wcurlB', name:'Wrist curl (loop)', desc:'palmo in su, lento in eccentrica', type:'sets', fields:['rip','loop','note'], target:'3×15–20' },
+      { id:'wextB', name:'Wrist extension (loop)', desc:'palmo in giù, lento in eccentrica', type:'sets', fields:['rip','loop','note'], target:'3×15–20' },
+      { id:'mobBend', name:'Stretching polsi (defaticamento)', desc:'passive, in estensione e flessione', type:'single', fields:['min','note'], target:'2-3 min' },
+    ]
+  },
+  C: {
+    name: 'Sessione C — Forza base',
+    exercises: [
+      { id:'mobC', name:'Mobilità polsi quotidiana', desc:'circle lenti + stretch in estensione (30-60s)', type:'single', mobility:true, fields:['min','note'], target:'1-2 min, ogni giorno' },
+      { id:'zavorC', name:'Pull-up zavorrati', desc:'massimale del giorno', type:'sets', fields:['rip','kg','note'], target:'5×4 con 7.5–10 kg' },
+      { id:'pausaC', name:'Pull-up con pausa al mento', desc:'tieni 2 sec in cima', type:'sets', fields:['rip','note'], target:'3×4' },
+      { id:'hollowC', name:'Hollow body hold', desc:'core specifico per muscle up', type:'sets', fields:['sec','note'], target:'3×30 sec' },
+      { id:'dipC', name:'Dip profondi', desc:'simula la fase finale del muscle up', type:'sets', fields:['rip','kg','note'], target:'3×8' },
+    ]
+  }
+};
+
+const FIELD_LABELS = { rip:'rip', kg:'kg', sec:'sec', loop:'loop mm', min:'min', note:'note' };
+
+let currentSession = 'A';
+let logs = [];
+let accessToken = null;
+let fileId = null;
+
+// ========== INIT ==========
+document.getElementById('log-date').value = new Date().toISOString().slice(0,10);
+
+// ========== TOAST ==========
+function toast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('err', !!isErr);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ========== SYNC STATUS ==========
+function setSync(state, label) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  dot.className = 'sync-dot' + (state ? ' ' + state : '');
+  lbl.textContent = label;
+}
+
+// ========== GOOGLE AUTH (Implicit Flow via GIS) ==========
+let tokenClient = null;
+
+function loadGoogleScripts() {
+  return new Promise((resolve, reject) => {
+    if (window.google && google.accounts) return resolve();
+    const s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.async = true;
+    s.defer = true;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function initAuth() {
+  await loadGoogleScripts();
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: SCOPES,
+    callback: async (resp) => {
+      if (resp.error) { setSync('err', 'auth fallita'); return; }
+      accessToken = resp.access_token;
+      localStorage.setItem('gauth_token', accessToken);
+      localStorage.setItem('gauth_expiry', Date.now() + (resp.expires_in * 1000));
+      document.getElementById('signin-btn').style.display = 'none';
+      const old = document.getElementById('signout-btn');
+      if (!old) {
+        const btn = document.createElement('button');
+        btn.id = 'signout-btn';
+        btn.className = 'signout-btn';
+        btn.textContent = 'logout';
+        btn.onclick = signOut;
+        document.getElementById('sync-pod').appendChild(btn);
+      }
+      await initFileAndLoad();
+    }
+  });
+
+  // restore from previous session
+  const savedToken = localStorage.getItem('gauth_token');
+  const expiry = parseInt(localStorage.getItem('gauth_expiry') || '0');
+  if (savedToken && expiry > Date.now() + 60000) {
+    accessToken = savedToken;
+    document.getElementById('signin-btn').style.display = 'none';
+    const btn = document.createElement('button');
+    btn.id = 'signout-btn';
+    btn.className = 'signout-btn';
+    btn.textContent = 'logout';
+    btn.onclick = signOut;
+    document.getElementById('sync-pod').appendChild(btn);
+    await initFileAndLoad();
+  } else {
+    setSync('', 'non connesso');
+  }
+}
+
+function handleSignIn() {
+  if (GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE.apps.googleusercontent.com') {
+    toast('Configura prima il Google Client ID — leggi SETUP_GOOGLE.md', true);
+    return;
+  }
+  if (!tokenClient) {
+    toast('Sistema auth non pronto, riprova', true);
+    return;
+  }
+  tokenClient.requestAccessToken({ prompt: '' });
+}
+
+function signOut() {
+  if (accessToken && google.accounts && google.accounts.oauth2) {
+    google.accounts.oauth2.revoke(accessToken, () => {});
+  }
+  accessToken = null;
+  fileId = null;
+  localStorage.removeItem('gauth_token');
+  localStorage.removeItem('gauth_expiry');
+  localStorage.removeItem('gauth_fileid');
+  logs = [];
+  document.getElementById('signin-btn').style.display = '';
+  const btn = document.getElementById('signout-btn');
+  if (btn) btn.remove();
+  setSync('', 'non connesso');
+  document.getElementById('history-list').innerHTML = '<div class="history-empty">accedi con Google per vedere lo storico</div>';
+}
+
+// ========== DRIVE API ==========
+async function driveFetch(url, opts = {}) {
+  opts.headers = { ...(opts.headers || {}), Authorization: 'Bearer ' + accessToken };
+  const res = await fetch(url, opts);
+  if (res.status === 401) {
+    signOut();
+    throw new Error('Token scaduto, riaccedi');
+  }
+  return res;
+}
+
+async function findOrCreateFile() {
+  const cached = localStorage.getItem('gauth_fileid');
+  if (cached) {
+    // verify it still exists
+    const check = await driveFetch(`https://www.googleapis.com/drive/v3/files/${cached}?fields=id`);
+    if (check.ok) return cached;
+  }
+  // search
+  const q = encodeURIComponent(`name='${FILE_NAME}' and trashed=false`);
+  const sr = await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&spaces=drive`);
+  const sd = await sr.json();
+  if (sd.files && sd.files.length) {
+    localStorage.setItem('gauth_fileid', sd.files[0].id);
+    return sd.files[0].id;
+  }
+  // create
+  const meta = { name: FILE_NAME, mimeType: 'application/json' };
+  const cr = await driveFetch('https://www.googleapis.com/drive/v3/files', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(meta)
+  });
+  const cd = await cr.json();
+  // initialize with []
+  await driveFetch(`https://www.googleapis.com/upload/drive/v3/files/${cd.id}?uploadType=media`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: '[]'
+  });
+  localStorage.setItem('gauth_fileid', cd.id);
+  return cd.id;
+}
+
+async function readDriveFile() {
+  const r = await driveFetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
+  if (!r.ok) throw new Error('Read failed');
+  const text = await r.text();
+  try { return JSON.parse(text); } catch { return []; }
+}
+
+async function writeDriveFile(data) {
+  const r = await driveFetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error('Write failed');
+}
+
+async function initFileAndLoad() {
+  setSync('loading', 'connessione a Drive...');
+  try {
+    fileId = await findOrCreateFile();
+    setSync('loading', 'caricamento dati...');
+    logs = await readDriveFile();
+    setSync('ok', 'sincronizzato');
+    renderHistory();
+  } catch (e) {
+    console.error(e);
+    setSync('err', 'errore connessione');
+    toast('Errore Drive: ' + e.message, true);
+  }
+}
+
+// ========== UI RENDERING ==========
+function switchSession(s) {
+  currentSession = s;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.session === s));
+  renderForm();
+}
+
+function buildSetRow(ex, i) {
+  const nonNote = ex.fields.filter(f => f !== 'note');
+  const inputs = nonNote.map(f =>
+    `<input type="number" step="any" class="set-input" placeholder="${FIELD_LABELS[f]}" id="${ex.id}-s${i}-${f}">`
+  ).join('');
+  return `<div class="set-row" id="row-${ex.id}-${i}">
+    <span class="set-label">s${i+1}</span>
+    ${inputs}
+    <input type="text" class="set-input note" placeholder="note" id="${ex.id}-s${i}-note">
+    <button class="del-btn" onclick="removeSet('${ex.id}',${i})" aria-label="rimuovi">×</button>
+  </div>`;
+}
+
+function renderForm() {
+  const sess = SESSIONS[currentSession];
+  const c = document.getElementById('exercises-container');
+  c.innerHTML = '';
+  sess.exercises.forEach(ex => {
+    const card = document.createElement('div');
+    card.className = 'ex-card' + (ex.mobility ? ' mobility' : '');
+    const def = ex.target.startsWith('4') ? 4 : ex.target.startsWith('5') ? 5 : 3;
+    let body = '';
+    if (ex.type === 'sets') {
+      let rows = '';
+      for (let i = 0; i < def; i++) rows += buildSetRow(ex, i);
+      body = `<div class="sets-list" id="sets-${ex.id}">${rows}</div>
+        <button class="add-set" onclick="addSet('${ex.id}')">+ aggiungi serie</button>`;
+    } else {
+      const flds = ex.fields.map(f =>
+        f === 'note'
+          ? `<div class="field full"><label>note</label><textarea class="set-textarea" id="${ex.id}-note" placeholder="..."></textarea></div>`
+          : `<div class="field"><label>${FIELD_LABELS[f]}</label><input type="number" step="any" class="set-input" style="width:100%" id="${ex.id}-${f}" placeholder="—"></div>`
+      ).join('');
+      body = `<div class="single-fields">${flds}</div>`;
+    }
+    card.innerHTML = `
+      <div class="ex-header">
+        <div class="ex-tag">${ex.mobility ? 'mobilità • daily' : 'esercizio'}</div>
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-desc">${ex.desc}</div>
+        <div class="ex-target">${ex.target}</div>
+      </div>${body}`;
+    c.appendChild(card);
+  });
+}
+
+function addSet(exId) {
+  const cont = document.getElementById('sets-'+exId);
+  const count = cont.querySelectorAll('.set-row').length;
+  const ex = Object.values(SESSIONS).flatMap(s => s.exercises).find(e => e.id === exId);
+  cont.insertAdjacentHTML('beforeend', buildSetRow(ex, count));
+}
+
+function removeSet(exId, idx) {
+  const r = document.getElementById(`row-${exId}-${idx}`);
+  if (r) r.remove();
+  const cont = document.getElementById('sets-'+exId);
+  if (cont) cont.querySelectorAll('.set-row').forEach((row, i) => {
+    row.querySelector('.set-label').textContent = 's' + (i+1);
+  });
+}
+
+function collectFormData() {
+  const sess = SESSIONS[currentSession];
+  return sess.exercises.map(ex => {
+    const entry = { id: ex.id, name: ex.name, sets: [] };
+    if (ex.type === 'sets') {
+      const cont = document.getElementById('sets-'+ex.id);
+      if (!cont) return null;
+      cont.querySelectorAll('.set-row').forEach((row, i) => {
+        const set = {};
+        ex.fields.forEach(f => {
+          const el = document.getElementById(`${ex.id}-s${i}-${f}`);
+          if (el && el.value.trim()) set[f] = el.value.trim();
+        });
+        if (Object.keys(set).length) entry.sets.push(set);
+      });
+    } else {
+      const set = {};
+      ex.fields.forEach(f => {
+        const el = document.getElementById(`${ex.id}-${f}`);
+        if (el && el.value.trim()) set[f] = el.value.trim();
+      });
+      if (Object.keys(set).length) entry.sets.push(set);
+    }
+    return entry.sets.length ? entry : null;
+  }).filter(Boolean);
+}
+
+async function saveLog() {
+  if (!accessToken) { toast('Accedi con Google prima di salvare', true); return; }
+  const date = document.getElementById('log-date').value || new Date().toISOString().slice(0,10);
+  const data = collectFormData();
+  if (!data.length) { toast('Inserisci almeno un dato', true); return; }
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.textContent = 'Salvataggio...';
+  setSync('loading', 'salvataggio...');
+  logs.unshift({ date, session: currentSession, exercises: data, id: Date.now() });
+  try {
+    await writeDriveFile(logs);
+    setSync('ok', 'sincronizzato');
+    toast('Sessione salvata');
+    renderHistory();
+    renderForm();
+  } catch (e) {
+    setSync('err', 'errore salvataggio');
+    toast('Errore: ' + e.message, true);
+    logs.shift();
+  }
+  btn.disabled = false;
+  btn.textContent = 'Salva sessione';
+}
+
+async function deleteLog(id) {
+  if (!accessToken) return;
+  if (!confirm('Eliminare questa sessione?')) return;
+  const old = logs;
+  logs = logs.filter(l => l.id !== id);
+  setSync('loading', 'salvataggio...');
+  try {
+    await writeDriveFile(logs);
+    setSync('ok', 'sincronizzato');
+    renderHistory();
+    toast('Sessione eliminata');
+  } catch (e) {
+    logs = old;
+    setSync('err', 'errore');
+    toast('Errore eliminazione', true);
+  }
+}
+
+function formatSet(s) {
+  const p = [];
+  if (s.rip) p.push(s.rip+' rip');
+  if (s.sec) p.push(s.sec+' sec');
+  if (s.min) p.push(s.min+' min');
+  if (s.kg) p.push(s.kg+' kg');
+  if (s.loop) p.push('loop '+s.loop);
+  if (s.note) p.push('<em>'+s.note+'</em>');
+  return p.join(' · ');
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (!logs.length) {
+    list.innerHTML = '<div class="history-empty">nessuna sessione salvata ancora</div>';
+    return;
+  }
+  const sorted = [...logs].sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
+  list.innerHTML = sorted.map(log => {
+    const d = new Date(log.date+'T12:00:00');
+    const ds = d.toLocaleDateString('it-IT', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    return `<div class="log">
+      <div class="log-head">
+        <span class="log-date">${ds}</span>
+        <span class="log-badge badge-${log.session}">sess. ${log.session}</span>
+        <button class="log-del" onclick="deleteLog(${log.id})" aria-label="elimina">×</button>
+      </div>
+      ${log.exercises.map(ex => `
+        <div class="log-ex">
+          <div class="log-ex-name">${ex.name}</div>
+          <div class="log-sets">${ex.sets.map((s,i) => `<span class="log-set">s${i+1}: ${formatSet(s)}</span>`).join('')}</div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ========== START ==========
+renderForm();
+initAuth();
+</script>
+</body>
+</html>
