@@ -483,6 +483,193 @@ body {
   .actions { flex-direction: column; }
   .btn-primary, .btn-secondary { min-width: 0; width: 100%; }
 }
+
+/* ========== SESSION EDITOR ========== */
+.edit-sessions-btn {
+  background: transparent;
+  border: 1px solid rgba(212,255,58,0.3);
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+}
+.edit-sessions-btn:hover { background: rgba(212,255,58,0.08); }
+.editor-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 18px 48px;
+  overflow-y: auto;
+}
+.editor-modal {
+  background: var(--surface);
+  border: 1px solid rgba(212,255,58,0.2);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+}
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.editor-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.05em;
+}
+.editor-close {
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.editor-close:hover { color: var(--danger); }
+.editor-tabs {
+  display: flex;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+}
+.editor-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-3);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  margin-bottom: -1px;
+  transition: color 0.15s;
+}
+.editor-tab:hover { color: var(--text); }
+.editor-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.editor-session-name-row {
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.editor-input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+}
+.editor-input:focus { outline: none; border-color: var(--accent); }
+.editor-input option { background: var(--surface-2); }
+.editor-exercises-list {
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.editor-ex-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.editor-ex-info { flex: 1; min-width: 0; }
+.editor-ex-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.editor-ex-meta {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-3);
+  margin-top: 2px;
+  display: block;
+}
+.editor-ex-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.editor-ex-btn {
+  background: transparent;
+  border: 1px solid var(--border-2);
+  color: var(--text-3);
+  border-radius: var(--radius);
+  padding: 4px 9px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+.editor-ex-btn:hover { color: var(--accent); border-color: var(--accent); }
+.editor-ex-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
+.editor-add-btn {
+  margin: 0 20px 10px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px dashed var(--border-2);
+  border-radius: var(--radius);
+  color: var(--text-3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+.editor-add-btn:hover { border-color: var(--accent); color: var(--accent); }
+.editor-ex-form {
+  margin: 0 20px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.ex-form-grid { display: flex; flex-direction: column; gap: 10px; }
+.ex-form-field { display: flex; flex-direction: column; gap: 5px; }
+.ex-form-field > label {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ex-form-checks { display: flex; flex-wrap: wrap; gap: 10px; }
+.ex-form-check {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-2);
+  cursor: pointer;
+}
+.ex-form-check input[type=checkbox] { accent-color: var(--accent); }
+.ex-form-actions { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+.editor-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+}
 </style>
 </head>
 <body>
@@ -545,6 +732,29 @@ body {
   <div id="history-list"><div class="history-empty">accedi con Google per vedere lo storico</div></div>
 </div>
 
+<div id="editor-overlay" class="editor-overlay" style="display:none" onclick="closeEditorIfOverlay(event)">
+  <div class="editor-modal">
+    <div class="editor-header">
+      <span class="editor-title">⚙ modifica sessioni</span>
+      <button class="editor-close" onclick="closeEditor()">✕</button>
+    </div>
+    <div class="editor-tabs">
+      <button class="editor-tab active" data-sess="A" onclick="switchEditorSession('A')">Sessione A</button>
+      <button class="editor-tab" data-sess="B" onclick="switchEditorSession('B')">Sessione B</button>
+      <button class="editor-tab" data-sess="C" onclick="switchEditorSession('C')">Sessione C</button>
+    </div>
+    <div class="editor-session-name-row">
+      <input type="text" id="editor-session-name" class="editor-input" placeholder="Nome sessione">
+    </div>
+    <div id="editor-exercises-list" class="editor-exercises-list"></div>
+    <button class="editor-add-btn" onclick="addExercise()">+ aggiungi esercizio</button>
+    <div id="editor-ex-form" class="editor-ex-form" style="display:none"></div>
+    <div class="editor-footer">
+      <button class="btn-primary" onclick="saveSessionsToDrive()">Salva su Drive</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -552,10 +762,11 @@ body {
 // Sostituisci questo con il tuo OAuth Client ID dopo il setup Google Cloud
 const GOOGLE_CLIENT_ID = '291935614340-fm0sqirj6autqdinjumru74oks5ecgrk.apps.googleusercontent.com';
 const FILE_NAME = 'calisthenics-tracker-data.json';
+const SESSIONS_FILE_NAME = 'calisthenics-tracker-sessions.json';
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 
 // ========== SESSIONS DATA ==========
-const SESSIONS = {
+let SESSIONS = {
   A: {
     name: 'Sessione A — Qualità esplosiva',
     exercises: [
@@ -594,6 +805,9 @@ let currentSession = 'A';
 let logs = [];
 let accessToken = null;
 let fileId = null;
+let sessionsFileId = null;
+let editingSessions = null;
+let editorCurrentSession = 'A';
 
 // ========== INIT ==========
 document.getElementById('log-date').value = new Date().toISOString().slice(0,10);
@@ -651,6 +865,14 @@ async function initAuth() {
         btn.onclick = signOut;
         document.getElementById('sync-pod').appendChild(btn);
       }
+      if (!document.getElementById('edit-sessions-btn')) {
+        const eb = document.createElement('button');
+        eb.id = 'edit-sessions-btn';
+        eb.className = 'edit-sessions-btn';
+        eb.textContent = '⚙ sessioni';
+        eb.onclick = openEditor;
+        document.getElementById('sync-pod').appendChild(eb);
+      }
       await initFileAndLoad();
     }
   });
@@ -667,6 +889,12 @@ async function initAuth() {
     btn.textContent = 'logout';
     btn.onclick = signOut;
     document.getElementById('sync-pod').appendChild(btn);
+    const eb2 = document.createElement('button');
+    eb2.id = 'edit-sessions-btn';
+    eb2.className = 'edit-sessions-btn';
+    eb2.textContent = '⚙ sessioni';
+    eb2.onclick = openEditor;
+    document.getElementById('sync-pod').appendChild(eb2);
     await initFileAndLoad();
   } else {
     setSync('', 'non connesso');
@@ -691,13 +919,17 @@ function signOut() {
   }
   accessToken = null;
   fileId = null;
+  sessionsFileId = null;
   localStorage.removeItem('gauth_token');
   localStorage.removeItem('gauth_expiry');
   localStorage.removeItem('gauth_fileid');
+  localStorage.removeItem('gauth_sessionsfileid');
   logs = [];
   document.getElementById('signin-btn').style.display = '';
   const btn = document.getElementById('signout-btn');
   if (btn) btn.remove();
+  const editBtn = document.getElementById('edit-sessions-btn');
+  if (editBtn) editBtn.remove();
   setSync('', 'non connesso');
   document.getElementById('history-list').innerHTML = '<div class="history-empty">accedi con Google per vedere lo storico</div>';
 }
@@ -762,13 +994,63 @@ async function writeDriveFile(data) {
   if (!r.ok) throw new Error('Write failed');
 }
 
+async function findOrCreateSessionsFile() {
+  const cached = localStorage.getItem('gauth_sessionsfileid');
+  if (cached) {
+    const check = await driveFetch(`https://www.googleapis.com/drive/v3/files/${cached}?fields=id`);
+    if (check.ok) { sessionsFileId = cached; return; }
+  }
+  const q = encodeURIComponent(`name='${SESSIONS_FILE_NAME}' and trashed=false`);
+  const sr = await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&spaces=drive`);
+  const sd = await sr.json();
+  if (sd.files && sd.files.length) {
+    sessionsFileId = sd.files[0].id;
+    localStorage.setItem('gauth_sessionsfileid', sessionsFileId);
+  }
+  // if not found, sessionsFileId stays null → use hardcoded defaults
+}
+
+async function readSessionsFromDrive() {
+  await findOrCreateSessionsFile();
+  if (!sessionsFileId) return;
+  try {
+    const r = await driveFetch(`https://www.googleapis.com/drive/v3/files/${sessionsFileId}?alt=media`);
+    if (!r.ok) return;
+    const data = await r.json();
+    SESSIONS = data;
+  } catch { /* keep defaults */ }
+}
+
+async function writeSessionsToDrive() {
+  if (!sessionsFileId) {
+    const meta = { name: SESSIONS_FILE_NAME, mimeType: 'application/json' };
+    const cr = await driveFetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(meta)
+    });
+    const cd = await cr.json();
+    sessionsFileId = cd.id;
+    localStorage.setItem('gauth_sessionsfileid', sessionsFileId);
+  }
+  const r = await driveFetch(`https://www.googleapis.com/upload/drive/v3/files/${sessionsFileId}?uploadType=media`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(SESSIONS)
+  });
+  if (!r.ok) throw new Error('Write sessions failed');
+}
+
 async function initFileAndLoad() {
   setSync('loading', 'connessione a Drive...');
   try {
     fileId = await findOrCreateFile();
+    setSync('loading', 'caricamento sessioni...');
+    await readSessionsFromDrive();
     setSync('loading', 'caricamento dati...');
     logs = await readDriveFile();
     setSync('ok', 'sincronizzato');
+    renderForm();
     renderHistory();
   } catch (e) {
     console.error(e);
@@ -950,6 +1232,164 @@ function renderHistory() {
         </div>`).join('')}
     </div>`;
   }).join('');
+}
+
+// ========== SESSION EDITOR ==========
+function openEditor() {
+  editingSessions = JSON.parse(JSON.stringify(SESSIONS));
+  editorCurrentSession = 'A';
+  renderEditorSession('A');
+  document.getElementById('editor-overlay').style.display = 'flex';
+}
+
+function closeEditor() {
+  document.getElementById('editor-overlay').style.display = 'none';
+}
+
+function closeEditorIfOverlay(e) {
+  if (e.target === document.getElementById('editor-overlay')) closeEditor();
+}
+
+function switchEditorSession(s) {
+  const nameInput = document.getElementById('editor-session-name');
+  if (nameInput) editingSessions[editorCurrentSession].name = nameInput.value;
+  renderEditorSession(s);
+}
+
+function renderEditorSession(s) {
+  editorCurrentSession = s;
+  document.querySelectorAll('.editor-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.sess === s)
+  );
+  document.getElementById('editor-session-name').value = editingSessions[s].name;
+  document.getElementById('editor-exercises-list').innerHTML =
+    editingSessions[s].exercises.map(ex => `
+      <div class="editor-ex-item">
+        <div class="editor-ex-info">
+          <span class="editor-ex-name">${ex.name}</span>
+          <span class="editor-ex-meta">${ex.type} · ${ex.fields.join(', ')}</span>
+        </div>
+        <div class="editor-ex-actions">
+          <button class="editor-ex-btn" onclick="editExercise('${ex.id}')">✏</button>
+          <button class="editor-ex-btn danger" onclick="deleteExercise('${ex.id}')">✕</button>
+        </div>
+      </div>`).join('');
+  hideExForm();
+}
+
+function hideExForm() {
+  const f = document.getElementById('editor-ex-form');
+  f.style.display = 'none';
+  f.innerHTML = '';
+}
+
+function showExForm(ex) {
+  const allFields = ['rip','kg','sec','loop','min','note'];
+  const form = document.getElementById('editor-ex-form');
+  form.style.display = 'block';
+  form.innerHTML = `
+    <div class="ex-form-grid">
+      <div class="ex-form-field">
+        <label>Nome</label>
+        <input type="text" id="exf-name" class="editor-input" value="${ex ? ex.name : ''}" placeholder="es. Pull-up esplosivi">
+      </div>
+      <div class="ex-form-field">
+        <label>Descrizione</label>
+        <input type="text" id="exf-desc" class="editor-input" value="${ex ? ex.desc : ''}" placeholder="istruzioni brevi">
+      </div>
+      <div class="ex-form-field">
+        <label>Tipo</label>
+        <select id="exf-type" class="editor-input">
+          <option value="sets" ${!ex || ex.type === 'sets' ? 'selected' : ''}>sets — serie ripetute</option>
+          <option value="single" ${ex && ex.type === 'single' ? 'selected' : ''}>single — campo unico</option>
+        </select>
+      </div>
+      <div class="ex-form-field">
+        <label>Campi da registrare</label>
+        <div class="ex-form-checks">
+          ${allFields.map(f => `
+            <label class="ex-form-check">
+              <input type="checkbox" value="${f}" ${ex && ex.fields.includes(f) ? 'checked' : ''}> ${f}
+            </label>`).join('')}
+        </div>
+      </div>
+      <div class="ex-form-field">
+        <label>Target</label>
+        <input type="text" id="exf-target" class="editor-input" value="${ex ? ex.target : ''}" placeholder="es. 4×3, rec 3 min">
+      </div>
+      <div class="ex-form-field">
+        <label class="ex-form-check" style="text-transform:none;letter-spacing:0;font-size:12px">
+          <input type="checkbox" id="exf-mobility" ${ex && ex.mobility ? 'checked' : ''}> Esercizio di mobilità
+        </label>
+      </div>
+    </div>
+    <div class="ex-form-actions">
+      <button class="btn-primary" style="flex:0;padding:8px 18px;font-size:13px" onclick="saveExercise('${ex ? ex.id : ''}')">
+        ${ex ? 'Aggiorna' : 'Aggiungi'}
+      </button>
+      <button class="btn-secondary" style="padding:8px 14px;font-size:13px" onclick="hideExForm()">Annulla</button>
+    </div>`;
+  form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function editExercise(exId) {
+  const ex = editingSessions[editorCurrentSession].exercises.find(e => e.id === exId);
+  showExForm(ex);
+}
+
+function addExercise() {
+  showExForm(null);
+}
+
+function deleteExercise(exId) {
+  if (!confirm('Eliminare questo esercizio?')) return;
+  editingSessions[editorCurrentSession].exercises =
+    editingSessions[editorCurrentSession].exercises.filter(e => e.id !== exId);
+  renderEditorSession(editorCurrentSession);
+}
+
+function saveExercise(existingId) {
+  const name = document.getElementById('exf-name').value.trim();
+  if (!name) { alert("Inserisci il nome dell'esercizio"); return; }
+  const checked = document.querySelectorAll('#editor-ex-form .ex-form-checks input:checked');
+  const fields = Array.from(checked).map(c => c.value);
+  if (!fields.length) { alert('Seleziona almeno un campo da registrare'); return; }
+  const exData = {
+    id: existingId || ('ex_' + Date.now()),
+    name,
+    desc: document.getElementById('exf-desc').value.trim(),
+    type: document.getElementById('exf-type').value,
+    fields,
+    target: document.getElementById('exf-target').value.trim(),
+  };
+  if (document.getElementById('exf-mobility').checked) exData.mobility = true;
+  const exercises = editingSessions[editorCurrentSession].exercises;
+  if (existingId) {
+    const idx = exercises.findIndex(e => e.id === existingId);
+    if (idx !== -1) exercises[idx] = exData;
+  } else {
+    exercises.push(exData);
+  }
+  renderEditorSession(editorCurrentSession);
+}
+
+async function saveSessionsToDrive() {
+  const nameInput = document.getElementById('editor-session-name');
+  if (nameInput) editingSessions[editorCurrentSession].name = nameInput.value;
+  const btn = document.querySelector('#editor-overlay .btn-primary');
+  btn.disabled = true;
+  btn.textContent = 'Salvataggio...';
+  try {
+    SESSIONS = editingSessions;
+    await writeSessionsToDrive();
+    closeEditor();
+    renderForm();
+    toast('Sessioni salvate su Drive');
+  } catch (e) {
+    toast('Errore salvataggio: ' + e.message, true);
+    btn.disabled = false;
+    btn.textContent = 'Salva su Drive';
+  }
 }
 
 // ========== START ==========
