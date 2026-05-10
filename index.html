@@ -705,6 +705,76 @@ body {
   padding: 14px 20px;
   border-top: 1px solid var(--border);
 }
+
+/* ========== PULL-UP COUNTER ========== */
+.pullup-widget {
+  background: var(--surface);
+  border: 1px solid rgba(212,255,58,0.25);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.pullup-total {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pullup-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(40px, 10vw, 56px);
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.pullup-label {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.pullup-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.pullup-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-2);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.pullup-btn:hover { border-color: var(--accent); color: var(--accent); }
+.pullup-btn.minus:hover { border-color: var(--danger); color: var(--danger); }
+.pullup-step {
+  width: 56px;
+  text-align: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 6px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 500;
+}
+.pullup-step:focus { outline: none; border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -725,6 +795,18 @@ body {
   </header>
 
   <div id="view-workout">
+    <div class="pullup-widget">
+      <div class="pullup-total">
+        <div class="pullup-number" id="pullup-count">0</div>
+        <div class="pullup-label">pull-up oggi</div>
+      </div>
+      <div class="pullup-controls">
+        <button class="pullup-btn minus" onclick="addPullups(-1)">−</button>
+        <input type="number" id="pullup-step" class="pullup-step" value="1" min="1" max="999">
+        <button class="pullup-btn plus" onclick="addPullups(1)">+</button>
+      </div>
+    </div>
+
     <div class="date-bar">
       <label>data</label>
       <input type="date" id="log-date">
@@ -1288,6 +1370,27 @@ function renderHistory() {
   }).join('');
 }
 
+// ========== PULL-UP COUNTER ==========
+function getPullupCount() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (localStorage.getItem('pullup_date') !== today) {
+    localStorage.setItem('pullup_date', today);
+    localStorage.setItem('pullup_count', '0');
+  }
+  return parseInt(localStorage.getItem('pullup_count') || '0');
+}
+
+function addPullups(direction) {
+  const step = Math.max(1, parseInt(document.getElementById('pullup-step').value) || 1);
+  const delta = direction > 0 ? step : -step;
+  const current = getPullupCount();
+  const next = Math.max(0, current + delta);
+  const today = new Date().toISOString().slice(0, 10);
+  localStorage.setItem('pullup_date', today);
+  localStorage.setItem('pullup_count', String(next));
+  document.getElementById('pullup-count').textContent = next;
+}
+
 // ========== VIEW SWITCHER ==========
 function switchView(v) {
   currentView = v;
@@ -1456,6 +1559,7 @@ async function saveSessionsToDrive() {
 }
 
 // ========== START ==========
+document.getElementById('pullup-count').textContent = getPullupCount();
 renderForm();
 initAuth();
 </script>
