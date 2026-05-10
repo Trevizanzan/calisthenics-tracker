@@ -45,7 +45,7 @@ body {
 .app {
   max-width: 720px;
   margin: 0 auto;
-  padding: 24px 18px 80px;
+  padding: 24px 18px 100px;
 }
 .header {
   display: flex;
@@ -484,6 +484,41 @@ body {
   .btn-primary, .btn-secondary { min-width: 0; width: 100%; }
 }
 
+/* ========== BOTTOM NAV ========== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(10,10,10,0.95);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  z-index: 200;
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color 0.15s;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.nav-btn:hover { color: var(--text-2); }
+.nav-btn.active { color: var(--accent); }
+.nav-btn svg { transition: stroke 0.15s; }
+
 /* ========== SESSION EDITOR ========== */
 .edit-sessions-btn {
   background: transparent;
@@ -689,48 +724,62 @@ body {
     </div>
   </header>
 
-  <div class="date-bar">
-    <label>data</label>
-    <input type="date" id="log-date">
-  </div>
-
-  <div class="tabs">
-    <button class="tab active" data-session="A" onclick="switchSession('A')">
-      <div class="tab-letter">SESS. A</div>
-      <div class="tab-name">Esplosiva</div>
-    </button>
-    <button class="tab" data-session="B" onclick="switchSession('B')">
-      <div class="tab-letter">SESS. B</div>
-      <div class="tab-name">Range &amp; Volume</div>
-    </button>
-    <button class="tab" data-session="C" onclick="switchSession('C')">
-      <div class="tab-letter">SESS. C</div>
-      <div class="tab-name">Forza Base</div>
-    </button>
-  </div>
-
-  <div class="warmup-banner">
-    <div class="warmup-title">
-      <svg class="warmup-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-      Riscaldamento polsi — sempre, non opzionale
+  <div id="view-workout">
+    <div class="date-bar">
+      <label>data</label>
+      <input type="date" id="log-date">
     </div>
-    <div class="warmup-text">
-      <strong>5 min prima della sessione:</strong> circle lenti (30 sec per verso) · carico progressivo a terra · pike push-up sulle fist. Traccia il tempo dedicato qui sotto, è parte dell'allenamento.
+
+    <div class="tabs">
+      <button class="tab active" data-session="A" onclick="switchSession('A')">
+        <div class="tab-letter">SESS. A</div>
+        <div class="tab-name">Esplosiva</div>
+      </button>
+      <button class="tab" data-session="B" onclick="switchSession('B')">
+        <div class="tab-letter">SESS. B</div>
+        <div class="tab-name">Range &amp; Volume</div>
+      </button>
+      <button class="tab" data-session="C" onclick="switchSession('C')">
+        <div class="tab-letter">SESS. C</div>
+        <div class="tab-name">Forza Base</div>
+      </button>
+    </div>
+
+    <div class="warmup-banner">
+      <div class="warmup-title">
+        <svg class="warmup-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        Riscaldamento polsi — sempre, non opzionale
+      </div>
+      <div class="warmup-text">
+        <strong>5 min prima della sessione:</strong>
+        circle lenti (30 sec per verso) · carico progressivo a terra · pike push-up sulle fist. Traccia il tempo dedicato qui sotto, è parte dell'allenamento.
+      </div>
+    </div>
+
+    <div id="exercises-container" class="exercises"></div>
+
+    <div class="actions">
+      <button class="btn-primary" id="save-btn" onclick="saveLog()">Salva sessione</button>
+      <button class="btn-secondary" onclick="renderForm()">Cancella</button>
     </div>
   </div>
 
-  <div id="exercises-container" class="exercises"></div>
-
-  <div class="actions">
-    <button class="btn-primary" id="save-btn" onclick="saveLog()">Salva sessione</button>
-    <button class="btn-secondary" onclick="renderForm()">Cancella</button>
+  <div id="view-history" style="display:none">
+    <div class="history-title">// storico</div>
+    <div id="history-list"><div class="history-empty">accedi con Google per vedere lo storico</div></div>
   </div>
-
-  <div class="divider"></div>
-
-  <div class="history-title">// storico</div>
-  <div id="history-list"><div class="history-empty">accedi con Google per vedere lo storico</div></div>
 </div>
+
+<nav class="bottom-nav" id="bottom-nav" style="display:none">
+  <button class="nav-btn active" data-view="workout" onclick="switchView('workout')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    <span>Allenamento</span>
+  </button>
+  <button class="nav-btn" data-view="history" onclick="switchView('history')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    <span>Storico</span>
+  </button>
+</nav>
 
 <div id="editor-overlay" class="editor-overlay" style="display:none" onclick="closeEditorIfOverlay(event)">
   <div class="editor-modal">
@@ -802,6 +851,7 @@ let SESSIONS = {
 const FIELD_LABELS = { rip:'rip', kg:'kg', sec:'sec', loop:'loop mm', min:'min', note:'note' };
 
 let currentSession = 'A';
+let currentView = 'workout';
 let logs = [];
 let accessToken = null;
 let fileId = null;
@@ -873,6 +923,7 @@ async function initAuth() {
         eb.onclick = openEditor;
         document.getElementById('sync-pod').appendChild(eb);
       }
+      document.getElementById('bottom-nav').style.display = 'flex';
       await initFileAndLoad();
     }
   });
@@ -895,6 +946,7 @@ async function initAuth() {
     eb2.textContent = '⚙ sessioni';
     eb2.onclick = openEditor;
     document.getElementById('sync-pod').appendChild(eb2);
+    document.getElementById('bottom-nav').style.display = 'flex';
     await initFileAndLoad();
   } else {
     setSync('', 'non connesso');
@@ -930,6 +982,8 @@ function signOut() {
   if (btn) btn.remove();
   const editBtn = document.getElementById('edit-sessions-btn');
   if (editBtn) editBtn.remove();
+  document.getElementById('bottom-nav').style.display = 'none';
+  switchView('workout');
   setSync('', 'non connesso');
   document.getElementById('history-list').innerHTML = '<div class="history-empty">accedi con Google per vedere lo storico</div>';
 }
@@ -1232,6 +1286,15 @@ function renderHistory() {
         </div>`).join('')}
     </div>`;
   }).join('');
+}
+
+// ========== VIEW SWITCHER ==========
+function switchView(v) {
+  currentView = v;
+  document.getElementById('view-workout').style.display = v === 'workout' ? '' : 'none';
+  document.getElementById('view-history').style.display = v === 'history' ? '' : 'none';
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  if (v === 'history') renderHistory();
 }
 
 // ========== SESSION EDITOR ==========
