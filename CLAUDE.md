@@ -4,11 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Single-page calisthenics workout tracking app ("Muscle Up") built with vanilla HTML/CSS/JS. No build system, no dependencies — the entire application lives in `index.html`. Data is persisted to a user's Google Drive as `calisthenics-tracker-data.json` via the Drive REST API. Authentication uses Google Identity Services (OAuth 2.0 implicit flow).
+Single-page calisthenics workout tracking app ("Muscle Up") built with vanilla JS + Vite. Data is persisted to **Supabase** (PostgreSQL). Authentication uses **Supabase Auth with Google OAuth**. Deployed on **Vercel**.
 
-**Live app:** https://trevizanzan.github.io/calisthenics-tracker  
-**Repo:** https://github.com/Trevizanzan/calisthenics-tracker  
-**Deployment:** GitHub Pages (push to `main` → live immediately, no CI pipeline)
+**Repo:** https://github.com/Trevizanzan/calisthenics-tracker
 
 ## Design System
 
@@ -25,42 +23,70 @@ Do not alter colors, fonts, or overall visual identity when making changes.
 ## Running Locally
 
 ```bash
-python -m http.server 8000
-# then open http://localhost:8000
+npm install
+# copy .env.example to .env.local and fill in Supabase credentials
+npm run dev   # Vite dev server at http://localhost:5173
+npm run build # production build → dist/
 ```
-
-Opening `index.html` directly as `file://` also works but may cause OAuth redirect issues. No build, compile, or install step required.
 
 ## Architecture
 
-Everything is in `index.html` (~960 lines), organized into clearly commented sections:
-
-- **CONFIG** — Google Client ID, Drive file name, OAuth scopes
-- **SESSIONS DATA** — Exercise definitions for the 3 workout types (A, B, C)
-- **AUTH** — Google Sign-In token management and localStorage token caching
-- **DRIVE API** — Search, create, read, and write the JSON file on Drive
-- **UI RENDERING** — Builds exercise cards dynamically from session data; renders history
-- **EVENT HANDLERS** — Tab switching, form submission, delete, sync
+```
+index.html        — HTML shell, loads src/main.js as ES module
+src/
+  main.js         — all app logic (auth, data, UI rendering)
+  style.css       — all styles (imported by main.js)
+supabase/
+  migrations/
+    001_initial.sql — DB schema (run once in Supabase SQL editor)
+```
 
 ### Data flow
 
-1. User authenticates → token stored in `localStorage`
-2. App searches for `calisthenics-tracker-data.json` in user's Drive (creates it if absent)
-3. Existing logs loaded and rendered in the history section
-4. On save: form data is collected, prepended to the logs array, and written back to Drive via PATCH
+1. Page loads → `supabase.auth.onAuthStateChange` fires `INITIAL_SESSION`
+2. If session exists → load `logs` and `sessions_config` from Supabase → render UI
+3. On save: insert one row into `logs` table; local `logs` array updated in memory
+4. On pullup update: upsert one row in `logs` (type='pullups'), debounced 1500ms
+5. On sessions config save: upsert one row in `sessions_config`
+
+### Supabase schema
+
+**`logs`** — workout sessions + daily pullup counts
+```
+id          uuid (PK)
+user_id     uuid → auth.users
+date        text  (YYYY-MM-DD)
+type        text  (null = workout | 'pullups' = daily pullup count)
+session     text  ('A' | 'B' | 'C', workouts only)
+exercises   jsonb (workout data only)
+count       int   (pullups only)
+created_at  timestamptz
+```
+
+**`sessions_config`** — per-user custom A/B/C exercise definitions
+```
+user_id     uuid (PK → auth.users)
+data        jsonb  (full SESSIONS object)
+updated_at  timestamptz
+```
+
+Both tables have Row Level Security: users can only read/write their own rows.
 
 ### Session structure
 
 Each session (A/B/C) defines an array of exercise objects:
 ```js
-{ id, name, description, type: 'sets'|'single', fields: ['rip','kg','sec',...], target }
+{ id, name, desc, type: 'sets'|'single', fields: ['rip','kg','sec',...], target, mobility? }
 ```
 `type: 'sets'` renders a row per set; `type: 'single'` renders one row of inputs.
 
+### Important: inline onclick globals
+
+`src/main.js` is an ES module. Functions called from `onclick` attributes in the HTML (including dynamically generated HTML) must be explicitly exposed via `window.fnName = fnName` at the bottom of `main.js`.
+
 ## Key Constraints
 
-- **Google Cloud OAuth credentials** are hardcoded (`GOOGLE_CLIENT_ID`). The authorized JavaScript origin must include the domain the app is served from, or OAuth will fail.
-- The Google Cloud project (`calisthenics-tracker`) is in **test mode** — only `andreatrevi91@gmail.com` is an authorized test user.
-- The app stores the Drive file ID in `localStorage` to avoid repeated searches. Clearing localStorage forces a fresh Drive lookup.
+- **Env vars** `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` must be set — locally in `.env.local`, on Vercel in the project dashboard.
+- **Google OAuth** is configured in Supabase Auth (not in the client code). The authorized redirect URI in Google Cloud Console points to `https://[project].supabase.co/auth/v1/callback`. The app's own URL(s) are whitelisted in Supabase → Auth → URL Configuration → Redirect URLs.
 - All UI text is in Italian.
 - The app is functional on both desktop and mobile.
