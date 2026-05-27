@@ -38,7 +38,11 @@ src/
   style.css       — all styles (imported by main.js)
 supabase/
   migrations/
-    001_initial.sql — DB schema (run once in Supabase SQL editor)
+    001_initial.sql   — DB schema (run once in Supabase SQL editor)
+    002_keepalive.sql — keep-alive table (see below)
+.github/
+  workflows/
+    keepalive.yml   — GitHub Actions cron preventing Supabase auto-pause
 ```
 
 ### Data flow
@@ -90,3 +94,11 @@ Each session (A/B/C) defines an array of exercise objects:
 - **Google OAuth** is configured in Supabase Auth (not in the client code). The authorized redirect URI in Google Cloud Console points to `https://[project].supabase.co/auth/v1/callback`. The app's own URL(s) are whitelisted in Supabase → Auth → URL Configuration → Redirect URLs.
 - All UI text is in Italian.
 - The app is functional on both desktop and mobile.
+
+## Keep-alive (Supabase free tier)
+
+The free Supabase tier auto-pauses projects after 7 days without API requests. To prevent this:
+
+- A `keepalive` table (migration `002_keepalive.sql`) holds throwaway rows.
+- A GitHub Actions workflow (`.github/workflows/keepalive.yml`) runs daily and inserts a row; weekly it deletes all rows.
+- The workflow uses the **service_role** key via the `SUPABASE_SERVICE_ROLE_KEY` GitHub secret (alongside `SUPABASE_URL`). The service_role key bypasses RLS and **must NEVER** be added to `.env.local`, Vercel env vars, or any client-facing code.
