@@ -97,8 +97,19 @@ Each session (A/B/C) defines an array of exercise objects:
 
 ## Keep-alive (Supabase free tier)
 
-The free Supabase tier auto-pauses projects after 7 days without API requests. To prevent this:
+The free Supabase tier auto-pauses projects after 7 days without API requests. Prevented by an external cron that generates traffic from outside Supabase.
 
-- A `keepalive` table (migration `002_keepalive.sql`) holds throwaway rows.
-- A GitHub Actions workflow (`.github/workflows/keepalive.yml`) runs daily and inserts a row; weekly it deletes all rows.
-- The workflow uses the **service_role** key via the `SUPABASE_SERVICE_ROLE_KEY` GitHub secret (alongside `SUPABASE_URL`). The service_role key bypasses RLS and **must NEVER** be added to `.env.local`, Vercel env vars, or any client-facing code.
+**Components:**
+- `supabase/migrations/002_keepalive.sql` — `keepalive` table (id + created_at, RLS enabled with no policies → only service_role can touch it).
+- `.github/workflows/keepalive.yml` — GitHub Actions cron:
+  - `0 8 * * *` (daily, 08:00 UTC) → `POST /rest/v1/keepalive` (INSERT one row)
+  - `0 9 * * 0` (Sunday, 09:00 UTC) → `DELETE /rest/v1/keepalive` (clean all rows)
+  - Also `workflow_dispatch` for manual runs.
+- **GitHub secrets** (repo Settings → Secrets and variables → Actions):
+  - `SUPABASE_URL` — project URL
+  - `SUPABASE_SERVICE_ROLE_KEY` — service_role key (bypasses RLS). **NEVER** put this in `.env.local`, Vercel env vars, or any client code.
+
+**Monitoring & changes:**
+- Run history & logs: GitHub repo → **Actions** tab → **Supabase keep-alive**.
+- To change schedule/behavior: edit `.github/workflows/keepalive.yml` and push.
+- GitHub disables scheduled workflows if the repo has zero activity for 60 days (email warning sent).
