@@ -113,3 +113,5 @@ The free Supabase tier auto-pauses projects after 7 days without API requests. P
 - Run history & logs: GitHub repo → **Actions** tab → **Supabase keep-alive**.
 - To change schedule/behavior: edit `.github/workflows/keepalive.yml` and push.
 - GitHub disables scheduled workflows if the repo has zero activity for 60 days (email warning sent).
+
+<!-- keepalive: 2026-05-27 -->
