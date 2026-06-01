@@ -115,3 +115,4 @@ The free Supabase tier auto-pauses projects after 7 days without API requests. P
 - GitHub disables scheduled workflows if the repo has zero activity for 60 days (email warning sent).
 
 <!-- keepalive: 2026-05-27 -->
+<!-- keepalive: 2026-06-01 -->
