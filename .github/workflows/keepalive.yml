@@ -2,18 +2,18 @@ name: Supabase keep-alive
 
 on:
   schedule:
-    # Daily 08:00 UTC → INSERT one row
-    - cron: '0 8 * * *'
-    # Sunday 09:00 UTC → DELETE all rows
-    - cron: '0 9 * * 0'
+    # Every 2 hours → INSERT one row (12 rows/day)
+    - cron: '0 */2 * * *'
+    # Every 2 months (1st of month) → DELETE all rows
+    - cron: '0 9 1 */2 *'
   workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Insert heartbeat row (daily)
-        if: github.event.schedule == '0 8 * * *' || github.event_name == 'workflow_dispatch'
+      - name: Insert heartbeat row (every 2h)
+        if: github.event.schedule == '0 */2 * * *' || github.event_name == 'workflow_dispatch'
         run: |
           curl -sS -X POST \
             -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
@@ -24,8 +24,8 @@ jobs:
             --fail-with-body \
             "${{ secrets.SUPABASE_URL }}/rest/v1/keepalive"
 
-      - name: Cleanup keepalive table (weekly)
-        if: github.event.schedule == '0 9 * * 0'
+      - name: Cleanup keepalive table (every 2 months)
+        if: github.event.schedule == '0 9 1 */2 *'
         run: |
           curl -sS -X DELETE \
             -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
