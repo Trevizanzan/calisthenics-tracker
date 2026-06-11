@@ -102,8 +102,8 @@ The free Supabase tier auto-pauses projects after 7 days without API requests. P
 **Components:**
 - `supabase/migrations/002_keepalive.sql` — `keepalive` table (id + created_at, RLS enabled with no policies → only service_role can touch it).
 - `.github/workflows/keepalive.yml` — GitHub Actions cron:
-  - `0 8 * * *` (daily, 08:00 UTC) → `POST /rest/v1/keepalive` (INSERT one row)
-  - `0 9 * * 0` (Sunday, 09:00 UTC) → `DELETE /rest/v1/keepalive` (clean all rows)
+  - `0 */2 * * *` (every 2 hours, 12 runs/day) → `POST /rest/v1/keepalive` (INSERT one row). Note: GitHub Actions schedules are best-effort and may skip slots under load — in practice we observe ~6-9 rows/day, well above the threshold needed.
+  - `0 9 1 */2 *` (1st of every 2 months, 09:00 UTC) → `DELETE /rest/v1/keepalive` (clean all rows)
   - Also `workflow_dispatch` for manual runs.
 - **GitHub secrets** (repo Settings → Secrets and variables → Actions):
   - `SUPABASE_URL` — project URL
@@ -113,6 +113,10 @@ The free Supabase tier auto-pauses projects after 7 days without API requests. P
 - Run history & logs: GitHub repo → **Actions** tab → **Supabase keep-alive**.
 - To change schedule/behavior: edit `.github/workflows/keepalive.yml` and push.
 - GitHub disables scheduled workflows if the repo has zero activity for 60 days (email warning sent).
+
+**Repo activity (mitigates the 60-day rule):**
+- A Claude Code scheduled routine named `calisthenics-tracker-keepalive-commit` runs monthly and pushes a no-op commit (e.g. `a3b048f chore: keepalive commit 2026-06-01`). Its only purpose is to generate repo activity so GitHub does not disable the keep-alive workflow above.
+- It is **separate** from the DB keep-alive: it does not touch Supabase. Manage it via the Claude Code routines UI (not via this repo).
 
 <!-- keepalive: 2026-05-27 -->
 <!-- keepalive: 2026-06-01 -->
