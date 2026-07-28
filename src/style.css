@@ -108,6 +108,30 @@ body {
   letter-spacing: 0.02em;
 }
 .signin-btn:hover { background: #c0eb20; }
+.signin-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.signin-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text-1);
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: inherit;
+  width: 110px;
+}
+.signin-input:focus { outline: none; border-color: var(--accent-dim); }
+.signin-errore {
+  width: 100%;
+  text-align: right;
+  color: var(--danger);
+  font-size: 11px;
+}
 .signout-btn {
   background: transparent;
   border: 1px solid var(--border-2);

@@ -22,7 +22,12 @@
         <span class="sync-dot" id="sync-dot"></span>
         <span id="sync-label">non connesso</span>
       </div>
-      <button class="signin-btn" id="signin-btn" onclick="handleSignIn()">accedi con Google</button>
+      <form class="signin-form" id="signin-form" onsubmit="return handleSignIn(event)">
+        <input class="signin-input" type="email" id="signin-email" placeholder="email" autocomplete="username" required>
+        <input class="signin-input" type="password" id="signin-password" placeholder="password" autocomplete="current-password" required>
+        <button class="signin-btn" type="submit">accedi</button>
+        <span class="signin-errore" id="signin-errore"></span>
+      </form>
     </div>
   </header>
 
@@ -79,7 +84,7 @@
 
   <div id="view-history" style="display:none">
     <div class="history-title">// storico</div>
-    <div id="history-list"><div class="history-empty">accedi con Google per vedere lo storico</div></div>
+    <div id="history-list"><div class="history-empty">accedi per vedere lo storico</div></div>
   </div>
 </div>
 

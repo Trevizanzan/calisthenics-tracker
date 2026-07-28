@@ -2,9 +2,12 @@ import { createClient } from '@supabase/supabase-js'
 import './style.css'
 
 // ========== CONFIG ==========
+// Schema `calisthenics` sull'hub condiviso con il ricettario: stesso progetto
+// Supabase, stesso account di famiglia, ogni app nel proprio schema.
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  import.meta.env.VITE_SUPABASE_ANON_KEY,
+  { db: { schema: 'calisthenics' } }
 )
 
 // ========== SESSIONS DATA ==========
@@ -96,7 +99,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 })
 
 function setupAuthUI(loggedIn) {
-  document.getElementById('signin-btn').style.display = loggedIn ? 'none' : ''
+  document.getElementById('signin-form').style.display = loggedIn ? 'none' : ''
   document.getElementById('signout-btn')?.remove()
   document.getElementById('edit-sessions-btn')?.remove()
 
@@ -123,15 +126,21 @@ function setupAuthUI(loggedIn) {
     pullupData = {}
     pullupIds = {}
     SESSIONS = defaultSessions()
-    document.getElementById('history-list').innerHTML = '<div class="history-empty">accedi con Google per vedere lo storico</div>'
+    document.getElementById('history-list').innerHTML = '<div class="history-empty">accedi per vedere lo storico</div>'
   }
 }
 
-async function handleSignIn() {
-  await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin + window.location.pathname }
-  })
+async function handleSignIn(event) {
+  event.preventDefault()
+  const email = document.getElementById('signin-email').value.trim()
+  const password = document.getElementById('signin-password').value
+  const errore = document.getElementById('signin-errore')
+  errore.textContent = ''
+
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  // Messaggio volutamente generico: non conferma se l'email esiste, come nel ricettario.
+  if (error) errore.textContent = 'Email o password non corretti.'
+  return false
 }
 
 async function handleSignOut() {

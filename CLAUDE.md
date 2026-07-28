@@ -4,9 +4,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Single-page calisthenics workout tracking app ("Muscle Up") built with vanilla JS + Vite. Data is persisted to **Supabase** (PostgreSQL). Authentication uses **Supabase Auth with Google OAuth**. Deployed on **Vercel**.
+Single-page calisthenics workout tracking app ("Muscle Up") built with vanilla JS + Vite. Data lives in
+the **hub** — the shared Supabase project also used by the `ricettario` app — in its own schema
+(`calisthenics`). Authentication is **email + password** (Supabase Auth), same account as `ricettario`:
+one person, one login, shared across apps. Deployed on **Vercel**.
 
 **Repo:** https://github.com/Trevizanzan/calisthenics-tracker
+
+### History: migrated off its own Supabase project (27/07)
+
+This app used to run on its own free-tier Supabase project (`qlpgamffiswavfmouhhk`, region `eu-west-1`).
+That project went `INACTIVE` (auto-paused after 7 days without traffic) and was never revived — moving
+into the hub was cheaper than reviving it, since the free tier caps active projects at 2 and the hub
+already hosts `ricettario`. The old project is left paused as a historical backup; nothing points to it
+anymore. `supabase/migrations/001_initial.sql` and `002_keepalive.sql` describe that old project's
+schema — kept for reference, not applied anywhere live.
+
+**Why the migration was low-effort:** the client only ever depended on two env vars
+(`VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY`) and a schema name — no edge functions, no storage
+bucket, no RPC calls. Moving meant: recreate the two tables under a new schema, point the client at
+the hub with `db: { schema: 'calisthenics' }`, and swap Google OAuth for email+password (the hub has
+registrations disabled, so the account is created once from the dashboard, not through a sign-up flow).
+Old `user_id` values weren't migrated — only one person used the app, so a fresh start cost nothing.
+
+**Its own keep-alive is gone.** The hub is already kept alive by `ricettario`'s daily Supabase ping and
+monthly GitHub-Actions-activity commit (see `ricettario/PROGETTO.md`, section "Keepalive"). This repo's
+own `.github/workflows/keepalive.yml` and the `calisthenics-tracker-keepalive-commit` monthly routine
+pinged the *old* standalone project — both should be removed/disabled once the app moves to the hub,
+otherwise they run against a project nobody reads from anymore.
 
 ## Design System
 
@@ -24,8 +49,9 @@ Do not alter colors, fonts, or overall visual identity when making changes.
 
 ```bash
 npm install
-# copy .env.example to .env.local and fill in Supabase credentials
-npm run dev   # Vite dev server at http://localhost:5173
+# .env.local already points to the hub (VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY);
+# .env.example mirrors it since both values are public by design (publishable key).
+npm run dev   # Vite dev server
 npm run build # production build → dist/
 ```
 
@@ -37,12 +63,7 @@ src/
   main.js         — all app logic (auth, data, UI rendering)
   style.css       — all styles (imported by main.js)
 supabase/
-  migrations/
-    001_initial.sql   — DB schema (run once in Supabase SQL editor)
-    002_keepalive.sql — keep-alive table (see below)
-.github/
-  workflows/
-    keepalive.yml   — GitHub Actions cron preventing Supabase auto-pause
+  migrations/      — historical: schema of the old standalone project, not applied anywhere live
 ```
 
 ### Data flow
@@ -53,7 +74,7 @@ supabase/
 4. On pullup update: upsert one row in `logs` (type='pullups'), debounced 1500ms
 5. On sessions config save: upsert one row in `sessions_config`
 
-### Supabase schema
+### Supabase schema (`calisthenics`, on the hub)
 
 **`logs`** — workout sessions + daily pullup counts
 ```
@@ -74,7 +95,9 @@ data        jsonb  (full SESSIONS object)
 updated_at  timestamptz
 ```
 
-Both tables have Row Level Security: users can only read/write their own rows.
+Both tables have Row Level Security: users can only read/write their own rows
+(`auth.uid() = user_id`). `auth.users` is shared across the whole hub project, not per-schema — the
+same account that logs into `ricettario` logs in here too.
 
 ### Session structure
 
@@ -86,38 +109,17 @@ Each session (A/B/C) defines an array of exercise objects:
 
 ### Important: inline onclick globals
 
-`src/main.js` is an ES module. Functions called from `onclick` attributes in the HTML (including dynamically generated HTML) must be explicitly exposed via `window.fnName = fnName` at the bottom of `main.js`.
+`src/main.js` is an ES module. Functions called from `onclick`/`onsubmit` attributes in the HTML
+(including dynamically generated HTML) must be explicitly exposed via `window.fnName = fnName` at the
+bottom of `main.js`.
 
 ## Key Constraints
 
-- **Env vars** `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` must be set — locally in `.env.local`, on Vercel in the project dashboard.
-- **Google OAuth** is configured in Supabase Auth (not in the client code). The authorized redirect URI in Google Cloud Console points to `https://[project].supabase.co/auth/v1/callback`. The app's own URL(s) are whitelisted in Supabase → Auth → URL Configuration → Redirect URLs.
+- **Env vars** `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` must be set — locally in `.env.local`,
+  on Vercel in the project dashboard. Both are public by design (publishable key + RLS is what actually
+  protects the data), so the same values live in `.env.example`.
+- **Login is email + password**, matching `ricettario`'s `Login.tsx` pattern: generic error message on
+  failure (doesn't reveal whether the email exists), no sign-up path — registrations are disabled on
+  the hub, accounts are created from the Supabase dashboard.
 - All UI text is in Italian.
 - The app is functional on both desktop and mobile.
-
-## Keep-alive (Supabase free tier)
-
-The free Supabase tier auto-pauses projects after 7 days without API requests. Prevented by an external cron that generates traffic from outside Supabase.
-
-**Components:**
-- `supabase/migrations/002_keepalive.sql` — `keepalive` table (id + created_at, RLS enabled with no policies → only service_role can touch it).
-- `.github/workflows/keepalive.yml` — GitHub Actions cron:
-  - `0 */2 * * *` (every 2 hours, 12 runs/day) → `POST /rest/v1/keepalive` (INSERT one row). Note: GitHub Actions schedules are best-effort and may skip slots under load — in practice we observe ~6-9 rows/day, well above the threshold needed.
-  - `0 9 1 */2 *` (1st of every 2 months, 09:00 UTC) → `DELETE /rest/v1/keepalive` (clean all rows)
-  - Also `workflow_dispatch` for manual runs.
-- **GitHub secrets** (repo Settings → Secrets and variables → Actions):
-  - `SUPABASE_URL` — project URL
-  - `SUPABASE_SERVICE_ROLE_KEY` — service_role key (bypasses RLS). **NEVER** put this in `.env.local`, Vercel env vars, or any client code.
-
-**Monitoring & changes:**
-- Run history & logs: GitHub repo → **Actions** tab → **Supabase keep-alive**.
-- To change schedule/behavior: edit `.github/workflows/keepalive.yml` and push.
-- GitHub disables scheduled workflows if the repo has zero activity for 60 days (email warning sent).
-
-**Repo activity (mitigates the 60-day rule):**
-- A Claude Code scheduled routine named `calisthenics-tracker-keepalive-commit` runs monthly and pushes a no-op commit (e.g. `a3b048f chore: keepalive commit 2026-06-01`). Its only purpose is to generate repo activity so GitHub does not disable the keep-alive workflow above.
-- It is **separate** from the DB keep-alive: it does not touch Supabase. Manage it via the Claude Code routines UI (not via this repo).
-
-<!-- keepalive: 2026-05-27 -->
-<!-- keepalive: 2026-06-01 -->
-<!-- keepalive: 2026-07-01 -->
