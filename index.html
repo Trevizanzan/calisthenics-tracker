@@ -4,126 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
-<title>Calisthenics Tracker — Muscle Up</title>
+<meta name="robots" content="noindex">
+<title>Muscle Up</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  // Tema prima del primo disegno: stesse chiavi di src/lib/aspetto.ts.
+  try {
+    var a = JSON.parse(localStorage.getItem('muscleup:aspetto') || 'null');
+    if (a) {
+      var h = document.documentElement;
+      h.dataset.tema = a.tema;
+      h.dataset.modo = a.modo === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'scuro' : 'chiaro') : a.modo;
+      h.style.setProperty('--scala', a.scala);
+    }
+  } catch (e) {}
+</script>
 </head>
 <body>
-
-<div class="app">
-  <header class="header">
-    <div class="brand">
-      <div class="brand-mark">/// training log</div>
-      <h1 class="brand-title">Muscle <span class="accent">Up</span></h1>
-    </div>
-    <div class="sync-pod" id="sync-pod">
-      <div class="sync-row">
-        <span class="sync-dot" id="sync-dot"></span>
-        <span id="sync-label">non connesso</span>
-      </div>
-      <form class="signin-form" id="signin-form" onsubmit="return handleSignIn(event)">
-        <input class="signin-input" type="email" id="signin-email" placeholder="email" autocomplete="username" required>
-        <input class="signin-input" type="password" id="signin-password" placeholder="password" autocomplete="current-password" required>
-        <button class="signin-btn" type="submit">accedi</button>
-        <span class="signin-errore" id="signin-errore"></span>
-      </form>
-    </div>
-  </header>
-
-  <div id="view-workout">
-    <div class="pullup-widget">
-      <div class="pullup-total">
-        <div class="pullup-number" id="pullup-count">0</div>
-        <div class="pullup-label" id="pullup-label">pull-up oggi</div>
-      </div>
-      <div class="pullup-controls">
-        <button class="pullup-btn minus" onclick="addPullups(-1)">−</button>
-        <button class="pullup-btn plus" onclick="addPullups(1)">+</button>
-      </div>
-    </div>
-
-    <div class="date-bar">
-      <label>data</label>
-      <input type="date" id="log-date" onchange="updatePullupDisplay()">
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" data-session="A" onclick="switchSession('A')">
-        <div class="tab-letter">SESS. A</div>
-        <div class="tab-name">Esplosiva</div>
-      </button>
-      <button class="tab" data-session="B" onclick="switchSession('B')">
-        <div class="tab-letter">SESS. B</div>
-        <div class="tab-name">Range &amp; Volume</div>
-      </button>
-      <button class="tab" data-session="C" onclick="switchSession('C')">
-        <div class="tab-letter">SESS. C</div>
-        <div class="tab-name">Forza Base</div>
-      </button>
-    </div>
-
-    <div class="warmup-banner">
-      <div class="warmup-title">
-        <svg class="warmup-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-        Riscaldamento polsi — sempre, non opzionale
-      </div>
-      <div class="warmup-text">
-        <strong>5 min prima della sessione:</strong>
-        circle lenti (30 sec per verso) · carico progressivo a terra · pike push-up sulle fist. Traccia il tempo dedicato qui sotto, è parte dell'allenamento.
-      </div>
-    </div>
-
-    <div id="exercises-container" class="exercises"></div>
-
-    <div class="actions">
-      <button class="btn-primary" id="save-btn" onclick="saveLog()">Salva sessione</button>
-      <button class="btn-secondary" onclick="renderForm()">Cancella</button>
-    </div>
-  </div>
-
-  <div id="view-history" style="display:none">
-    <div class="history-title">// storico</div>
-    <div id="history-list"><div class="history-empty">accedi per vedere lo storico</div></div>
-  </div>
-</div>
-
-<nav class="bottom-nav" id="bottom-nav" style="display:none">
-  <button class="nav-btn active" data-view="workout" onclick="switchView('workout')">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    <span>Allenamento</span>
-  </button>
-  <button class="nav-btn" data-view="history" onclick="switchView('history')">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-    <span>Storico</span>
-  </button>
-</nav>
-
-<div id="editor-overlay" class="editor-overlay" style="display:none" onclick="closeEditorIfOverlay(event)">
-  <div class="editor-modal">
-    <div class="editor-header">
-      <span class="editor-title">⚙ modifica sessioni</span>
-      <button class="editor-close" onclick="closeEditor()">✕</button>
-    </div>
-    <div class="editor-tabs">
-      <button class="editor-tab active" data-sess="A" onclick="switchEditorSession('A')">Sessione A</button>
-      <button class="editor-tab" data-sess="B" onclick="switchEditorSession('B')">Sessione B</button>
-      <button class="editor-tab" data-sess="C" onclick="switchEditorSession('C')">Sessione C</button>
-    </div>
-    <div class="editor-session-name-row">
-      <input type="text" id="editor-session-name" class="editor-input" placeholder="Nome sessione">
-    </div>
-    <div id="editor-exercises-list" class="editor-exercises-list"></div>
-    <button class="editor-add-btn" onclick="addExercise()">+ aggiungi esercizio</button>
-    <div id="editor-ex-form" class="editor-ex-form" style="display:none"></div>
-    <div class="editor-footer">
-      <button class="btn-primary" onclick="saveSessionsToSupabase()">Salva sessioni</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script type="module" src="/src/main.js"></script>
+<div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

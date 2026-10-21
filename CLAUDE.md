@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Single-page calisthenics workout tracking app ("Muscle Up") built with vanilla JS + Vite. Data lives in
+Single-page calisthenics workout tracking app ("Muscle Up") built with React + TypeScript + Vite. Data lives in
 the **hub** — the shared Supabase project also used by the `ricettario` app — in its own schema
 (`calisthenics`). Authentication is **email + password** (Supabase Auth), same account as `ricettario`:
 one person, one login, shared across apps. Deployed on **Vercel**.
@@ -35,15 +35,29 @@ otherwise they run against a project nobody reads from anymore.
 
 ## Design System
 
-The current visual style must be preserved exactly as-is:
+Lo stile originale è il tema **Neon** in modalità notte, ed è il predefinito. Va preservato così com'è:
 
 - **Background:** `#0a0a0a`
 - **Accent:** `#d4ff3a` (neon yellow)
 - **Warm:** `#ff7a45` (orange), **Cool:** `#5dc4ff` (blue), **Danger:** `#ff5470` (red)
 - **Fonts:** "Bricolage Grotesque" (body) + "JetBrains Mono" (monospace)
-- Dark theme, mobile-first responsive layout
+- Mobile-first responsive layout
 
-Do not alter colors, fonts, or overall visual identity when making changes.
+Dal 21/10 (richiesta esplicita) dal menu ⋯ si scelgono anche altri temi, la modalità giorno/notte/auto
+e la dimensione del testo. Come funziona:
+
+- `src/temi.css` definisce tutti i colori, i font e i raggi come variabili su `<html>`, per
+  `data-tema` (neon | oceano | brace | lavanda) e `data-modo` (scuro | chiaro). Ogni tema ha la sua
+  coppia di font: Oceano = Space Grotesk + IBM Plex Mono, Brace = Archivo + Space Mono, Lavanda =
+  Fraunces + DM Mono.
+- `src/styles.css` **non contiene colori o font letterali**: solo `var(--…)`, e le tinte trasparenti
+  con `color-mix(in srgb, var(--accent) 12%, transparent)`. Un colore scritto a mano lì romperebbe
+  gli altri temi. Il testo sopra lo sfondo accento usa `--on-accent`, non `--bg`.
+- Le dimensioni dei testi sono in `rem`: `html { font-size: calc(100% * var(--scala)) }` le scala
+  tutte insieme (85%–135%).
+- `src/lib/aspetto.ts` salva la scelta in localStorage (`muscleup:aspetto`, preferenza del
+  dispositivo) e scarica i font di un tema solo quando serve. Lo script in testa a `index.html`
+  applica gli stessi attributi prima del primo disegno, per evitare il lampo del tema predefinito.
 
 ## Running Locally
 
@@ -57,61 +71,75 @@ npm run build # production build → dist/
 
 ## Architecture
 
+React 18 + TypeScript + Vite (v3, 21/10/2026 — riscritta da vanilla JS, stessa impostazione di
+`ricettario` e `spese`).
+
 ```
-index.html        — HTML shell, loads src/main.js as ES module
+index.html                — solo <div id="root">: prima del login la pagina non contiene altro
 src/
-  main.js         — all app logic (auth, data, UI rendering)
-  style.css       — all styles (imported by main.js)
-supabase/
-  migrations/      — historical: schema of the old standalone project, not applied anywhere live
+  main.tsx                — monta <App />
+  App.tsx                 — cancello di login (useSessione) + AppAutenticata: carica dati, viste, toast
+  types.ts                — Esercizio, Allenamento, Serie, Bozza
+  temi.css                — variabili di colori/font/raggi per ogni tema e modalità
+  styles.css              — tutti gli stili, solo con variabili (classi della v2 riusate + nuove in fondo)
+  lib/supabase.ts         — client sullo schema `calisthenics`
+  lib/dati.ts             — tutte le letture/scritture su Supabase
+  lib/bozza.ts            — bozza dell'allenamento in localStorage, raggruppamento serie, "ultima volta"
+  lib/categorie.ts        — le 6 categorie (tirata, spinta, gambe, core, skill, mobilità)
+  lib/date.ts             — data locale (non UTC) e formattazione italiana
+  lib/aspetto.ts          — temi, modalità, scala del testo (localStorage)
+  components/
+    Login.tsx             — schermata di accesso a pagina intera
+    NuovoAllenamento.tsx  — data, esercizi scelti con le loro serie, note, salva
+    SceltaEsercizio.tsx   — catalogo per categoria con ricerca, riordino manuale (⇅ ordina),
+                            creazione di un esercizio proprio
+    ContatorePullup.tsx   — pull-up giornalieri, salvataggio con debounce 1s
+    Storico.tsx           — giorni con allenamenti/pull-up, "ripeti" ed "elimina"
+    Navigazione.tsx       — barra in basso
+    Menu.tsx              — menu ⋯: modalità, tema, dimensione testo, esci
+supabase/migrations/
+  001, 002                — storiche: il vecchio progetto standalone, non applicate da nessuna parte
+  003_catalogo_esercizi   — applicata sull'hub: catalogo, allenamenti, serie, pull-up
+  004_ordine_esercizi     — applicata sull'hub: ordine manuale degli esercizi per utente
 ```
 
-### Data flow
+### Flusso
 
-1. Page loads → `supabase.auth.onAuthStateChange` fires `INITIAL_SESSION`
-2. If session exists → load `logs` and `sessions_config` from Supabase → render UI
-3. On save: insert one row into `logs` table; local `logs` array updated in memory
-4. On pullup update: upsert one row in `logs` (type='pullups'), debounced 1500ms
-5. On sessions config save: upsert one row in `sessions_config`
+1. Senza sessione si monta solo `<Login />`: nessun dato viene richiesto.
+2. Con la sessione → in parallelo `esercizi`, `allenamenti` (con `serie` annidate) e
+   `pullup_giornalieri`.
+3. L'allenamento si compone scegliendo esercizi dal catalogo; per ciascuno si scrivono le serie
+   (ripetizioni o secondi, +kg se l'esercizio ammette zavorra). La bozza resta in localStorage
+   (`muscleup:bozza`) finché non si salva, così chiudere l'app a metà non perde niente.
+4. Salvare = una riga in `allenamenti` + una riga per serie in `serie` (le serie vuote si scartano).
+   Se le serie falliscono, l'allenamento appena creato viene cancellato.
+5. Sotto ogni esercizio scelto compare cosa si era fatto l'ultima volta, calcolato dallo storico
+   già caricato.
 
-### Supabase schema (`calisthenics`, on the hub)
+### Schema `calisthenics` sull'hub
 
-**`logs`** — workout sessions + daily pullup counts
-```
-id          uuid (PK)
-user_id     uuid → auth.users
-date        text  (YYYY-MM-DD)
-type        text  (null = workout | 'pullups' = daily pullup count)
-session     text  ('A' | 'B' | 'C', workouts only)
-exercises   jsonb (workout data only)
-count       int   (pullups only)
-created_at  timestamptz
-```
+**`esercizi`** — catalogo. `user_id` null = template (55 esercizi, visibili a ogni utente loggato);
+valorizzato = esercizio creato da quell'utente, visibile solo a lui.
+`nome`, `categoria` (spinta|tirata|gambe|core|skill|mobilita), `descrizione`, `misura` (rip|sec),
+`zavorra` (bool).
 
-**`sessions_config`** — per-user custom A/B/C exercise definitions
-```
-user_id     uuid (PK → auth.users)
-data        jsonb  (full SESSIONS object)
-updated_at  timestamptz
-```
+**`allenamenti`** — `id`, `user_id`, `data` (date), `note`, `created_at`.
 
-Both tables have Row Level Security: users can only read/write their own rows
-(`auth.uid() = user_id`). `auth.users` is shared across the whole hub project, not per-schema — the
-same account that logs into `ricettario` logs in here too.
+**`serie`** — `allenamento_id` (cascade), `user_id`, `esercizio_id` (restrict), `ordine`,
+`ripetizioni` | `secondi`, `kg`.
 
-### Session structure
+**`pullup_giornalieri`** — PK (`user_id`, `data`), `conteggio`.
 
-Each session (A/B/C) defines an array of exercise objects:
-```js
-{ id, name, desc, type: 'sets'|'single', fields: ['rip','kg','sec',...], target, mobility? }
-```
-`type: 'sets'` renders a row per set; `type: 'single'` renders one row of inputs.
+**`ordine_esercizi`** — PK (`user_id`, `esercizio_id`), `posizione`. Per utente perché il template è
+condiviso. Si riscrive un'intera categoria a ogni spostamento; senza righe vale l'ordine alfabetico,
+e gli esercizi senza posizione (es. appena creati) vanno in fondo.
 
-### Important: inline onclick globals
+RLS ovunque, solo per `authenticated`: `anon` non ha nemmeno l'uso dello schema. La policy di `serie`
+verifica anche che l'allenamento sia dell'utente. Collaudato il 21/10: anon → permission denied;
+un altro utente vede i 55 esercizi del template e nient'altro.
 
-`src/main.js` is an ES module. Functions called from `onclick`/`onsubmit` attributes in the HTML
-(including dynamically generated HTML) must be explicitly exposed via `window.fnName = fnName` at the
-bottom of `main.js`.
+**Tabelle della v2, non più lette:** `logs` e `sessions_config`. Restano intatte; i 2 conteggi di
+pull-up sono stati copiati in `pullup_giornalieri`, l'unico allenamento (28/07, formato A/B/C) no.
 
 ## Key Constraints
 
@@ -123,3 +151,5 @@ bottom of `main.js`.
   the hub, accounts are created from the Supabase dashboard.
 - All UI text is in Italian.
 - The app is functional on both desktop and mobile.
+- **Il login è un cancello:** senza sessione si vede solo la schermata di accesso. Le parti dell'app
+  autenticata non vanno mai rese prima del login.

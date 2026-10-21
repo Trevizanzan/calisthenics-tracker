@@ -1,0 +1,195 @@
+/*
+ * Temi. Ogni tema ha la sua coppia di font e due tavolozze, scura e chiara.
+ * <html> porta data-tema e data-modo (già risolto: "auto" diventa scuro o
+ * chiaro in JS), più --scala per la dimensione del testo.
+ *
+ * "neon" scuro è lo stile originale dell'app ed è il predefinito: i suoi
+ * valori stanno anche su :root, così senza attributi la pagina resta com'era.
+ */
+:root,
+:root[data-tema="neon"] {
+  --font-body: 'Bricolage Grotesque', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 6px;
+  --radius-lg: 12px;
+}
+:root,
+:root[data-tema="neon"][data-modo="scuro"] {
+  --scheme: dark;
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface-2: #1c1c1c;
+  --border: #2a2a2a;
+  --border-2: #3a3a3a;
+  --text: #f5f5f0;
+  --text-2: #a8a8a3;
+  --text-3: #6b6b66;
+  --accent: #d4ff3a;
+  --accent-dim: #9bbf00;
+  --accent-hover: #c0eb20;
+  --on-accent: #0a0a0a;
+  --warm: #ff7a45;
+  --cool: #5dc4ff;
+  --danger: #ff5470;
+  --overlay: rgba(0, 0, 0, 0.88);
+}
+:root { --scala: 1; }
+html { font-size: calc(100% * var(--scala)); }
+
+:root[data-tema="neon"][data-modo="chiaro"] {
+  --scheme: light;
+  --bg: #f2f2ec;
+  --surface: #ffffff;
+  --surface-2: #f0f0e8;
+  --border: #deded6;
+  --border-2: #c8c8bf;
+  --text: #141414;
+  --text-2: #4c4c47;
+  --text-3: #85857e;
+  --accent: #5f8500;
+  --accent-dim: #7da300;
+  --accent-hover: #4d6c00;
+  --on-accent: #ffffff;
+  --warm: #d9531a;
+  --cool: #0a84c6;
+  --danger: #d6274a;
+  --overlay: rgba(20, 20, 20, 0.45);
+}
+
+/* ===== Oceano: Space Grotesk + IBM Plex Mono, angoli più morbidi ===== */
+:root[data-tema="oceano"] {
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+:root[data-tema="oceano"][data-modo="scuro"] {
+  --scheme: dark;
+  --bg: #07131a;
+  --surface: #0d1f28;
+  --surface-2: #132a35;
+  --border: #1d3a47;
+  --border-2: #2a4f5f;
+  --text: #e8f4f6;
+  --text-2: #9fb8bf;
+  --text-3: #62808a;
+  --accent: #3de0c8;
+  --accent-dim: #1fa894;
+  --accent-hover: #2cc9b2;
+  --on-accent: #04201c;
+  --warm: #ffb454;
+  --cool: #7aa7ff;
+  --danger: #ff6b81;
+  --overlay: rgba(2, 10, 14, 0.85);
+}
+:root[data-tema="oceano"][data-modo="chiaro"] {
+  --scheme: light;
+  --bg: #eef6f7;
+  --surface: #ffffff;
+  --surface-2: #e6f0f2;
+  --border: #cfe0e4;
+  --border-2: #b5cdd3;
+  --text: #0b2730;
+  --text-2: #3d5a63;
+  --text-3: #7a959c;
+  --accent: #0b8a7a;
+  --accent-dim: #18a594;
+  --accent-hover: #08705f;
+  --on-accent: #ffffff;
+  --warm: #c76a00;
+  --cool: #2f62d6;
+  --danger: #cc2f4b;
+  --overlay: rgba(8, 30, 38, 0.45);
+}
+
+/* ===== Brace: Archivo + Space Mono, angoli vivi ===== */
+:root[data-tema="brace"] {
+  --font-body: 'Archivo', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --radius: 2px;
+  --radius-lg: 4px;
+}
+:root[data-tema="brace"][data-modo="scuro"] {
+  --scheme: dark;
+  --bg: #120d0b;
+  --surface: #1c1512;
+  --surface-2: #251c18;
+  --border: #352822;
+  --border-2: #4a3830;
+  --text: #f7ede6;
+  --text-2: #c2ada0;
+  --text-3: #85705f;
+  --accent: #ff7a2f;
+  --accent-dim: #c95a1c;
+  --accent-hover: #ff9050;
+  --on-accent: #1a0c04;
+  --warm: #ffc547;
+  --cool: #6ec6c0;
+  --danger: #ff4f5e;
+  --overlay: rgba(10, 5, 3, 0.86);
+}
+:root[data-tema="brace"][data-modo="chiaro"] {
+  --scheme: light;
+  --bg: #faf4ee;
+  --surface: #ffffff;
+  --surface-2: #f4ebe3;
+  --border: #e8d9cc;
+  --border-2: #d6c2b1;
+  --text: #24170f;
+  --text-2: #5e4a3d;
+  --text-3: #9a8476;
+  --accent: #c2410c;
+  --accent-dim: #e0611f;
+  --accent-hover: #9e350a;
+  --on-accent: #ffffff;
+  --warm: #b7791f;
+  --cool: #2c8c85;
+  --danger: #c81e3a;
+  --overlay: rgba(36, 23, 15, 0.45);
+}
+
+/* ===== Lavanda: Fraunces + DM Mono, angoli tondi ===== */
+:root[data-tema="lavanda"] {
+  --font-body: 'Fraunces', serif;
+  --font-mono: 'DM Mono', monospace;
+  --radius: 12px;
+  --radius-lg: 20px;
+}
+:root[data-tema="lavanda"][data-modo="scuro"] {
+  --scheme: dark;
+  --bg: #0f0c16;
+  --surface: #17131f;
+  --surface-2: #1f1a2a;
+  --border: #2c2540;
+  --border-2: #3d3455;
+  --text: #f1edf8;
+  --text-2: #b4abc6;
+  --text-3: #756c88;
+  --accent: #b79cff;
+  --accent-dim: #8b6be0;
+  --accent-hover: #c9b4ff;
+  --on-accent: #1a1030;
+  --warm: #ff9e7a;
+  --cool: #7fd4ff;
+  --danger: #ff6b8b;
+  --overlay: rgba(8, 5, 14, 0.86);
+}
+:root[data-tema="lavanda"][data-modo="chiaro"] {
+  --scheme: light;
+  --bg: #f6f3fb;
+  --surface: #ffffff;
+  --surface-2: #efeaf8;
+  --border: #ddd5ec;
+  --border-2: #c7bce0;
+  --text: #1d1530;
+  --text-2: #51476a;
+  --text-3: #8b82a3;
+  --accent: #6d3fd6;
+  --accent-dim: #8a63e6;
+  --accent-hover: #5a2fc0;
+  --on-accent: #ffffff;
+  --warm: #c2562c;
+  --cool: #1f7fb8;
+  --danger: #c6284f;
+  --overlay: rgba(29, 21, 48, 0.45);
+}
