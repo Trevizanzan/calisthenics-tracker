@@ -153,3 +153,13 @@ pull-up sono stati copiati in `pullup_giornalieri`, l'unico allenamento (28/07, 
 - The app is functional on both desktop and mobile.
 - **Il login è un cancello:** senza sessione si vede solo la schermata di accesso. Le parti dell'app
   autenticata non vanno mai rese prima del login.
+
+## Icona
+
+Logo: gli **anelli** da ginnastica arancio su `#141414`, con l'anellino bianco come le altre app
+dell'hub (proposta "02 · Anelli", vedi `app-personale/docs/loghi/icona-muscle-up.html`).
+- `public/icon-maskable.svg`: icona Android intera; il launcher mostra solo il cerchio centrale
+  (raggio 21,33 su 64), l'anello bianco è a r 20,875.
+- `public/icon.svg` e `public/favicon.svg`: la zona visibile sul Pixel, per il web.
+- I PNG (`icon-maskable-192/512`, `icon-192/512`, `apple-touch-icon`) sono renderizzati dagli SVG
+  con Chrome headless; `public/manifest.webmanifest` li dichiara (maskable in cima).
