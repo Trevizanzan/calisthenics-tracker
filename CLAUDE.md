@@ -130,6 +130,9 @@ valorizzato = esercizio creato da quell'utente, visibile solo a lui.
 `ripetizioni` | `secondi`, `kg`.
 
 **`pullup_giornalieri`** — PK (`user_id`, `data`), `conteggio`.
+Contiene i pull-up sparsi del contatore **più** le trazioni degli allenamenti inseriti a mano
+(pull-up, chin-up, presa neutra, esplosivi). I muscle up **non** vanno qui: lo storico mostra un badge
+"N muscle up" a parte, calcolato in `Storico.tsx` dalle serie dell'esercizio "Muscle up".
 
 **`ordine_esercizi`** — PK (`user_id`, `esercizio_id`), `posizione`. Per utente perché il template è
 condiviso. Si riscrive un'intera categoria a ogni spostamento; senza righe vale l'ordine alfabetico,

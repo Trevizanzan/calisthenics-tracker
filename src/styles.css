@@ -866,3 +866,8 @@ button:disabled { opacity: 0.35; cursor: not-allowed; }
 .log-toggle:hover .log-freccia { color: var(--accent); }
 .log.aperto .log-riassunto { color: var(--text-3); }
 .log-corpo { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.pullup-day-badge.mu {
+  color: var(--warm);
+  background: color-mix(in srgb, var(--warm) 8%, transparent);
+  border-color: color-mix(in srgb, var(--warm) 25%, transparent);
+}

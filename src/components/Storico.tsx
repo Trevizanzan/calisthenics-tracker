@@ -20,6 +20,17 @@ export function Storico({ storico, catalogo, pullup, onRipeti, onEliminato, avvi
     .sort()
     .reverse()
 
+  // Muscle up del giorno, contati dalle serie degli allenamenti: a differenza
+  // dei pull-up non c'è un contatore a parte, quindi si leggono da lì.
+  const muscleUp: Record<string, number> = {}
+  for (const a of storico) {
+    for (const s of a.serie) {
+      if (catalogo.get(s.esercizio_id)?.nome === 'Muscle up' && s.ripetizioni) {
+        muscleUp[a.data] = (muscleUp[a.data] ?? 0) + s.ripetizioni
+      }
+    }
+  }
+
   // Di partenza è aperto solo l'allenamento più recente: lo storico lungo si
   // scorre per date, e si apre quello che interessa.
   const [aperti, setAperti] = useState<Set<string>>(() => new Set(storico[0] ? [storico[0].id] : []))
@@ -59,6 +70,7 @@ export function Storico({ storico, catalogo, pullup, onRipeti, onEliminato, avvi
           <div className="history-day-header">
             <span className="history-day-date">{dataLeggibile(g)}</span>
             {pullup[g] > 0 && <span className="pullup-day-badge">{pullup[g]} pull-up</span>}
+            {muscleUp[g] > 0 && <span className="pullup-day-badge mu">{muscleUp[g]} muscle up</span>}
           </div>
           {storico.filter((a) => a.data === g).map((a) => {
             const aperto = aperti.has(a.id)
