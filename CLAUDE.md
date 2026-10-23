@@ -90,9 +90,11 @@ src/
   lib/aspetto.ts          — temi, modalità, scala del testo (localStorage)
   components/
     Login.tsx             — schermata di accesso a pagina intera
-    NuovoAllenamento.tsx  — data, esercizi scelti con le loro serie, note, salva
-    SceltaEsercizio.tsx   — catalogo per categoria con ricerca, riordino manuale (⇅ ordina),
-                            creazione di un esercizio proprio
+    NuovoAllenamento.tsx  — data, catalogo sempre aperto, "allenamento in corso" con le serie, note, salva
+    SceltaEsercizio.tsx   — catalogo in pagina (non più un popup), usato come un carrello: un tocco
+                            aggiunge l'esercizio all'allenamento in corso, un altro lo toglie (chiede
+                            conferma se ha serie scritte); linguette per categoria col numero di scelti,
+                            ricerca, riordino manuale (⇅ ordina), creazione di un esercizio proprio
     ContatorePullup.tsx   — pull-up giornalieri, salvataggio con debounce 1s
     Storico.tsx           — un allenamento = una riga (data, esercizi, badge pull-up/muscle up); si espande/comprime
                             (di partenza tutti chiusi e dal più recente; "recenti/vecchi prima", "espandi/comprimi tutti"), "ripeti", "elimina"

@@ -25,7 +25,6 @@ type Props = {
 
 export function NuovoAllenamento(p: Props) {
   const { bozza, onBozza, catalogo } = p
-  const [scelta, setScelta] = useState(false)
   const [salvataggio, setSalvataggio] = useState(false)
 
   const modificaBlocco = (chiave: string, f: (b: Bozza['blocchi'][number]) => Bozza['blocchi'][number] | null) =>
@@ -60,6 +59,16 @@ export function NuovoAllenamento(p: Props) {
     }
   }
 
+  // Il catalogo funziona come un carrello: un tocco aggiunge, un altro toglie.
+  // Se l'esercizio ha già delle serie scritte si chiede prima di buttarle.
+  const alterna = (id: string) => {
+    const blocco = bozza.blocchi.find((b) => b.esercizio_id === id)
+    if (!blocco) return onBozza({ ...bozza, blocchi: [...bozza.blocchi, nuovoBlocco(id)] })
+    const scritto = blocco.serie.some((s) => s.valore.trim() || s.kg.trim())
+    if (scritto && !confirm(`Togliere ${catalogo.get(id)?.nome ?? "l'esercizio"} e le serie scritte?`)) return
+    onBozza({ ...bozza, blocchi: bozza.blocchi.filter((b) => b.esercizio_id !== id) })
+  }
+
   const svuota = () => {
     if (bozza.blocchi.length && !confirm('Cancellare l\'allenamento in corso?')) return
     onBozza({ ...bozzaVuota(), data: bozza.data })
@@ -73,6 +82,25 @@ export function NuovoAllenamento(p: Props) {
         <label htmlFor="data">data</label>
         <input id="data" type="date" value={bozza.data} onChange={(e) => e.target.value && onBozza({ ...bozza, data: e.target.value })} />
       </div>
+
+      <SceltaEsercizio
+        userId={p.userId}
+        esercizi={p.esercizi}
+        ordine={p.ordine}
+        onRiordina={p.onRiordina}
+        scelti={new Set(bozza.blocchi.map((b) => b.esercizio_id))}
+        onAlterna={alterna}
+        onAggiungi={(id) => onBozza({ ...bozza, blocchi: [...bozza.blocchi, nuovoBlocco(id)] })}
+        onNuovo={p.onNuovoEsercizio}
+        avvisa={p.avvisa}
+      />
+
+      <div className="history-title carrello-titolo">
+        // allenamento in corso{bozza.blocchi.length > 0 && ` · ${bozza.blocchi.length} esercizi`}
+      </div>
+      {bozza.blocchi.length === 0 && (
+        <div className="carrello-vuoto">Tocca gli esercizi qui sopra per aggiungerli: finiscono qui, dove scrivi le serie.</div>
+      )}
 
       <div className="exercises">
         {bozza.blocchi.map((b, i) => {
@@ -130,8 +158,6 @@ export function NuovoAllenamento(p: Props) {
         })}
       </div>
 
-      <button className="add-exercise" onClick={() => setScelta(true)}>+ aggiungi esercizio</button>
-
       {bozza.blocchi.length > 0 && (
         <>
           <textarea className="set-textarea note-allenamento" placeholder="note (elastico usato, sensazioni...)" value={bozza.note}
@@ -145,22 +171,6 @@ export function NuovoAllenamento(p: Props) {
         </>
       )}
 
-      {scelta && (
-        <SceltaEsercizio
-          userId={p.userId}
-          esercizi={p.esercizi}
-          ordine={p.ordine}
-          onRiordina={p.onRiordina}
-          giaScelti={new Set(bozza.blocchi.map((b) => b.esercizio_id))}
-          onScegli={(id) => {
-            onBozza({ ...bozza, blocchi: [...bozza.blocchi, nuovoBlocco(id)] })
-            setScelta(false)
-          }}
-          onNuovo={p.onNuovoEsercizio}
-          onChiudi={() => setScelta(false)}
-          avvisa={p.avvisa}
-        />
-      )}
     </div>
   )
 }

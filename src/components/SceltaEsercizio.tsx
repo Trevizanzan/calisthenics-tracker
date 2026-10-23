@@ -8,10 +8,13 @@ type Props = {
   esercizi: Esercizio[]
   ordine: Record<string, number>
   onRiordina: (ids: string[]) => void
-  giaScelti: Set<string>
-  onScegli: (id: string) => void
+  /** Esercizi già nell'allenamento in corso. */
+  scelti: Set<string>
+  /** Tocco su un esercizio: lo aggiunge, o lo toglie se c'è già. */
+  onAlterna: (id: string) => void
+  /** Esercizio appena creato: va aggiunto, non alternato. */
+  onAggiungi: (id: string) => void
   onNuovo: (e: Esercizio) => void
-  onChiudi: () => void
   avvisa: (testo: string, errore?: boolean) => void
 }
 
@@ -35,17 +38,6 @@ export function SceltaEsercizio(p: Props) {
     try { localStorage.setItem(CHIAVE_CATEGORIA, categoria) } catch { /* idem */ }
   }, [categoria])
 
-  // Chiude con Esc e blocca lo scorrimento della pagina sotto.
-  useEffect(() => {
-    const esc = (e: KeyboardEvent) => e.key === 'Escape' && p.onChiudi()
-    window.addEventListener('keydown', esc)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      window.removeEventListener('keydown', esc)
-      document.body.style.overflow = ''
-    }
-  }, [p.onChiudi])
-
   const testo = cerca.trim().toLowerCase()
   // Con un testo di ricerca si cerca in tutte le categorie: chi scrive "dip"
   // non deve sapere prima che sta sotto Spinta.
@@ -64,13 +56,13 @@ export function SceltaEsercizio(p: Props) {
     p.onRiordina(ids)
   }
 
+  // Quanti esercizi scelti per categoria, sulle linguette.
+  const perCategoria: Partial<Record<Categoria, number>> = {}
+  for (const e of p.esercizi) if (p.scelti.has(e.id)) perCategoria[e.categoria] = (perCategoria[e.categoria] ?? 0) + 1
+
   return (
-    <div className="editor-overlay" onClick={(e) => e.target === e.currentTarget && p.onChiudi()}>
-      <div className="editor-modal" role="dialog" aria-label="Scegli esercizio">
-        <div className="editor-header">
-          <span className="editor-title">+ scegli esercizio</span>
-          <button className="editor-close" onClick={p.onChiudi} aria-label="Chiudi">✕</button>
-        </div>
+    <section className="catalogo" aria-label="Esercizi">
+        <div className="catalogo-titolo">// esercizi <span>tocca per aggiungere o togliere</span></div>
 
         <div className="picker-search">
           <input className="editor-input" type="search" placeholder="cerca..." value={cerca} onChange={(e) => setCerca(e.target.value)} />
@@ -85,6 +77,7 @@ export function SceltaEsercizio(p: Props) {
             {CATEGORIE.map((c) => (
               <button key={c.id} className={`cat-tab ${c.id === categoria ? 'active' : ''}`} onClick={() => setCategoria(c.id)}>
                 {c.nome}
+                {perCategoria[c.id] ? <span className="cat-conta">{perCategoria[c.id]}</span> : null}
               </button>
             ))}
           </div>
@@ -101,11 +94,13 @@ export function SceltaEsercizio(p: Props) {
               </span>
             </div>
           ))}
-          {!inRiordino && visibili.map((e) => (
-            <button key={e.id} className="picker-item" onClick={() => p.onScegli(e.id)}>
+          {!inRiordino && visibili.map((e) => {
+            const scelto = p.scelti.has(e.id)
+            return (
+            <button key={e.id} className={`picker-item ${scelto ? 'scelto' : ''}`} onClick={() => p.onAlterna(e.id)} aria-pressed={scelto}>
+              <span className="picker-segno" aria-hidden>{scelto ? '✓' : '+'}</span>
               <span className="picker-name">
                 {e.nome}
-                {p.giaScelti.has(e.id) && <span className="picker-badge">già aggiunto</span>}
                 {e.user_id && <span className="picker-badge mio">mio</span>}
               </span>
               <span className="picker-meta">
@@ -114,10 +109,11 @@ export function SceltaEsercizio(p: Props) {
                 {e.descrizione && ` — ${e.descrizione}`}
               </span>
             </button>
-          ))}
+            )
+          })}
         </div>
 
-        <div className="editor-footer">
+        <div className="catalogo-footer">
           {creazione ? (
             <NuovoEsercizio
               categoria={categoria}
@@ -127,7 +123,9 @@ export function SceltaEsercizio(p: Props) {
                 try {
                   const e = await creaEsercizio(p.userId, campi)
                   p.onNuovo(e)
-                  p.onScegli(e.id)
+                  p.onAggiungi(e.id)
+                  setCreazione(false)
+                  setCerca('')
                 } catch {
                   p.avvisa('Esercizio non creato', true)
                 }
@@ -137,8 +135,7 @@ export function SceltaEsercizio(p: Props) {
             <button className="editor-add-btn" onClick={() => setCreazione(true)}>+ crea un esercizio nuovo</button>
           )}
         </div>
-      </div>
-    </div>
+    </section>
   )
 }
 
