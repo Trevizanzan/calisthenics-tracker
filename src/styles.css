@@ -17,7 +17,7 @@ body {
 .app {
   max-width: 720px;
   margin: 0 auto;
-  padding: 24px 18px 100px;
+  padding: 24px 18px 48px;
 }
 .header {
   display: flex;
@@ -286,7 +286,7 @@ body {
 
 .toast {
   position: fixed;
-  bottom: 88px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%) translateY(120%);
   background: var(--surface);
@@ -320,40 +320,6 @@ body {
   white-space: nowrap;
 }
 
-/* ========== BOTTOM NAV ========== */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 64px;
-  background: color-mix(in srgb, var(--bg) 95%, transparent);
-  border-top: 1px solid var(--border);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: flex;
-  z-index: 200;
-}
-.nav-btn {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  background: transparent;
-  border: none;
-  color: var(--text-3);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  transition: color 0.15s;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-.nav-btn:hover { color: var(--text-2); }
-.nav-btn.active { color: var(--accent); }
-.nav-btn svg { transition: stroke 0.15s; }
 
 /* ========== SESSION EDITOR ========== */
 .editor-overlay {
@@ -511,7 +477,6 @@ body {
 
 /* ========== v3: React ========== */
 button:disabled { opacity: 0.35; cursor: not-allowed; }
-.bottom-nav { display: flex; }
 
 /* login */
 .login {
@@ -881,3 +846,40 @@ button:disabled { opacity: 0.35; cursor: not-allowed; }
   .badge-corto { display: inline; }
 }
 .history-comandi { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+/* ========== sezioni in alto (come scontrini/ricettario) ========== */
+.header { flex-wrap: wrap; align-items: center; row-gap: 14px; }
+.sezioni {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius-lg) - 4px);
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-btn:hover { color: var(--text); }
+.nav-btn.active { background: var(--accent); color: var(--on-accent); }
+@media (max-width: 600px) {
+  /* su telefono le sezioni vanno su una riga loro, a tutta larghezza */
+  .sezioni { order: 3; width: 100%; }
+  .nav-btn { flex: 1; }
+}
+.history-top .history-title { white-space: nowrap; }
+.history-comandi { flex-wrap: nowrap; }
+.history-comandi .log-btn { white-space: nowrap; }

@@ -106,6 +106,7 @@ function AppAutenticata({ userId }: { userId: string }) {
             <div className="brand-mark">/// training log</div>
             <h1 className="brand-title">Muscle <span className="accent">Up</span></h1>
           </div>
+          <Navigazione vista={vista} onVista={setVista} />
           <div className="header-destra">
             <div className="sync-row">
               <span className={`sync-dot ${stato === 'ok' ? 'ok' : stato === 'errore' ? 'err' : 'loading'}`} />
@@ -143,7 +144,6 @@ function AppAutenticata({ userId }: { userId: string }) {
         )}
       </div>
 
-      <Navigazione vista={vista} onVista={setVista} />
       <div className={`toast ${avviso ? 'show' : ''} ${avviso?.errore ? 'err' : ''}`}>{avviso?.testo}</div>
     </>
   )

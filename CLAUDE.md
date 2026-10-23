@@ -96,7 +96,8 @@ src/
     ContatorePullup.tsx   — pull-up giornalieri, salvataggio con debounce 1s
     Storico.tsx           — un allenamento = una riga (data, esercizi, badge pull-up/muscle up); si espande/comprime
                             (di partenza tutti chiusi e dal più recente; "recenti/vecchi prima", "espandi/comprimi tutti"), "ripeti", "elimina"
-    Navigazione.tsx       — barra in basso
+    Navigazione.tsx       — sezioni Allenamento/Storico in alto nell'intestazione, come scontrini/ricettario
+                            (su telefono una riga a tutta larghezza sotto il titolo)
     Menu.tsx              — menu ⋯: modalità, tema, dimensione testo, esci
 supabase/migrations/
   001, 002                — storiche: il vecchio progetto standalone, non applicate da nessuna parte
