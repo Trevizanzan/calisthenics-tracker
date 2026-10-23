@@ -31,9 +31,8 @@ export function Storico({ storico, catalogo, pullup, onRipeti, onEliminato, avvi
     }
   }
 
-  // Di partenza è aperto solo l'allenamento più recente: lo storico lungo si
-  // scorre per date, e si apre quello che interessa.
-  const [aperti, setAperti] = useState<Set<string>>(() => new Set(storico[0] ? [storico[0].id] : []))
+  // Di partenza sono tutti chiusi: una riga per allenamento, si apre quello che interessa.
+  const [aperti, setAperti] = useState<Set<string>>(() => new Set())
   const tuttiAperti = storico.length > 0 && storico.every((a) => aperti.has(a.id))
 
   const alterna = (id: string) =>
