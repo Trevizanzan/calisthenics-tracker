@@ -15,10 +15,12 @@ type Props = {
 }
 
 export function Storico({ storico, catalogo, pullup, onRipeti, onEliminato, avvisa }: Props) {
-  // Giorni con un allenamento o con dei pull-up, dal più recente.
-  const giorni = [...new Set([...storico.map((a) => a.data), ...Object.keys(pullup).filter((d) => pullup[d] > 0)])]
-    .sort()
-    .reverse()
+  // Di partenza dal più recente; il pulsante in cima inverte l'ordine.
+  const [recentiPrima, setRecentiPrima] = useState(true)
+
+  // Giorni con un allenamento o con dei pull-up.
+  const giorni = [...new Set([...storico.map((a) => a.data), ...Object.keys(pullup).filter((d) => pullup[d] > 0)])].sort()
+  if (recentiPrima) giorni.reverse()
 
   // Muscle up del giorno, contati dalle serie degli allenamenti: a differenza
   // dei pull-up non c'è un contatore a parte, quindi si leggono da lì.
@@ -57,11 +59,19 @@ export function Storico({ storico, catalogo, pullup, onRipeti, onEliminato, avvi
     <div>
       <div className="history-top">
         <div className="history-title">// storico</div>
+        <span className="history-comandi">
+        {giorni.length > 1 && (
+          <button className="log-btn" onClick={() => setRecentiPrima((r) => !r)}
+            title="Cambia l'ordine per data">
+            {recentiPrima ? '↓ recenti prima' : '↑ vecchi prima'}
+          </button>
+        )}
         {storico.length > 1 && (
           <button className="log-btn" onClick={() => setAperti(tuttiAperti ? new Set() : new Set(storico.map((a) => a.id)))}>
             {tuttiAperti ? 'comprimi tutti' : 'espandi tutti'}
           </button>
         )}
+        </span>
       </div>
       {giorni.length === 0 && <div className="history-empty">ancora nessun allenamento</div>}
       {giorni.map((g) => {
@@ -77,7 +87,9 @@ export function Storico({ storico, catalogo, pullup, onRipeti, onEliminato, avvi
             )}
           </span>
         )
+        // storico arriva dal più recente: nello stesso giorno si gira insieme ai giorni.
         const delGiorno = storico.filter((a) => a.data === g)
+        if (!recentiPrima) delGiorno.reverse()
         if (!delGiorno.length) {
           return (
             <div key={g} className="log riga solo-conteggi">

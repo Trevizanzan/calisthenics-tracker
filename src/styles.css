@@ -880,3 +880,4 @@ button:disabled { opacity: 0.35; cursor: not-allowed; }
   .badge-lungo { display: none; }
   .badge-corto { display: inline; }
 }
+.history-comandi { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
