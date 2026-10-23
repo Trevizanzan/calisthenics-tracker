@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Allenamento, Esercizio } from '../types'
 import { gruppi, testoSerie } from '../lib/bozza'
 import { eliminaAllenamento } from '../lib/dati'
-import { dataLeggibile } from '../lib/date'
+import { dataBreve, dataLeggibile } from '../lib/date'
 import { NOME_CATEGORIA } from '../lib/categorie'
 
 type Props = {
@@ -65,51 +65,72 @@ export function Storico({ storico, catalogo, pullup, onRipeti, onEliminato, avvi
         )}
       </div>
       {giorni.length === 0 && <div className="history-empty">ancora nessun allenamento</div>}
-      {giorni.map((g) => (
-        <div key={g} className="history-day">
-          <div className="history-day-header">
-            <span className="history-day-date">{dataLeggibile(g)}</span>
-            {pullup[g] > 0 && <span className="pullup-day-badge">{pullup[g]} pull-up</span>}
-            {muscleUp[g] > 0 && <span className="pullup-day-badge mu">{muscleUp[g]} muscle up</span>}
-          </div>
-          {storico.filter((a) => a.data === g).map((a) => {
-            const aperto = aperti.has(a.id)
-            const gr = gruppi(a.serie)
-            return (
-            <div key={a.id} className={`log ${aperto ? 'aperto' : ''}`}>
-              <button className="log-toggle" onClick={() => alterna(a.id)} aria-expanded={aperto}>
+      {giorni.map((g) => {
+        // Pull-up e muscle up sono del giorno: compaiono sulla riga del primo
+        // allenamento, o da soli se quel giorno non c'è un allenamento.
+        const badge = (
+          <span className="log-badge-giorno">
+            {pullup[g] > 0 && (
+              <span className="pullup-day-badge">{pullup[g]}<span className="badge-lungo"> pull-up</span><span className="badge-corto"> PU</span></span>
+            )}
+            {muscleUp[g] > 0 && (
+              <span className="pullup-day-badge mu">{muscleUp[g]}<span className="badge-lungo"> muscle up</span><span className="badge-corto"> MU</span></span>
+            )}
+          </span>
+        )
+        const delGiorno = storico.filter((a) => a.data === g)
+        if (!delGiorno.length) {
+          return (
+            <div key={g} className="log riga solo-conteggi">
+              <span className="log-data">{dataBreve(g)}</span>
+              <span className="log-riassunto vuoto">solo pull-up</span>
+              {badge}
+              <span className="log-freccia" aria-hidden />
+            </div>
+          )
+        }
+        return delGiorno.map((a, n) => {
+          const aperto = aperti.has(a.id)
+          const gr = gruppi(a.serie)
+          return (
+            <div key={a.id} className={`log riga ${aperto ? 'aperto' : ''}`}>
+              <button className="log-toggle" onClick={() => alterna(a.id)} aria-expanded={aperto}
+                title={gr.map((x) => catalogo.get(x.esercizio_id)?.nome ?? 'esercizio rimosso').join(' · ')}>
+                <span className="log-data">{dataBreve(a.data)}</span>
                 <span className="log-riassunto">
                   {gr.map((x) => catalogo.get(x.esercizio_id)?.nome ?? 'esercizio rimosso').join(' · ')}
                 </span>
-                <span className="log-conta">{gr.length} es · {a.serie.length} serie</span>
+                {n === 0 ? badge : <span className="log-badge-giorno" />}
                 <span className="log-freccia" aria-hidden>▾</span>
               </button>
-              {aperto && <div className="log-corpo">
-              {gr.map((gr, i) => {
-                const es = catalogo.get(gr.esercizio_id)
-                return (
-                  <div key={i} className="log-ex">
-                    <div className="log-ex-name">
-                      {es?.nome ?? 'esercizio rimosso'}
-                      {es && <span className="log-cat">{NOME_CATEGORIA[es.categoria]}</span>}
-                    </div>
-                    <div className="log-sets">
-                      {gr.serie.map((s) => <span key={s.id} className="log-set">{testoSerie(s)}</span>)}
-                    </div>
+              {aperto && (
+                <div className="log-corpo">
+                  <div className="log-conta">{gr.length} esercizi · {a.serie.length} serie</div>
+                  {gr.map((x, i) => {
+                    const es = catalogo.get(x.esercizio_id)
+                    return (
+                      <div key={i} className="log-ex">
+                        <div className="log-ex-name">
+                          {es?.nome ?? 'esercizio rimosso'}
+                          {es && <span className="log-cat">{NOME_CATEGORIA[es.categoria]}</span>}
+                        </div>
+                        <div className="log-sets">
+                          {x.serie.map((s) => <span key={s.id} className="log-set">{testoSerie(s)}</span>)}
+                        </div>
+                      </div>
+                    )
+                  })}
+                  {a.note && <div className="log-note">{a.note}</div>}
+                  <div className="log-actions">
+                    <button className="log-btn" onClick={() => onRipeti(a)}>↻ ripeti</button>
+                    <button className="log-btn danger" onClick={() => elimina(a)}>elimina</button>
                   </div>
-                )
-              })}
-              {a.note && <div className="log-note">{a.note}</div>}
-              <div className="log-actions">
-                <button className="log-btn" onClick={() => onRipeti(a)}>↻ ripeti</button>
-                <button className="log-btn danger" onClick={() => elimina(a)}>elimina</button>
-              </div>
-              </div>}
+                </div>
+              )}
             </div>
-            )
-          })}
-        </div>
-      ))}
+          )
+        })
+      })}
     </div>
   )
 }

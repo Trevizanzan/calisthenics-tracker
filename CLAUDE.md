@@ -94,7 +94,7 @@ src/
     SceltaEsercizio.tsx   — catalogo per categoria con ricerca, riordino manuale (⇅ ordina),
                             creazione di un esercizio proprio
     ContatorePullup.tsx   — pull-up giornalieri, salvataggio con debounce 1s
-    Storico.tsx           — giorni con allenamenti/pull-up; ogni allenamento si espande/comprime
+    Storico.tsx           — un allenamento = una riga (data, esercizi, badge pull-up/muscle up); si espande/comprime
                             (aperto solo il più recente, più "espandi/comprimi tutti"), "ripeti", "elimina"
     Navigazione.tsx       — barra in basso
     Menu.tsx              — menu ⋯: modalità, tema, dimensione testo, esci

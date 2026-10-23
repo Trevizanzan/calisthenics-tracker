@@ -308,23 +308,6 @@ body {
   .btn-primary, .btn-secondary { min-width: 0; width: 100%; }
 }
 
-/* ========== HISTORY DAY GROUPING ========== */
-.history-day { margin-bottom: 20px; }
-.history-day-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-}
-.history-day-date {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--text-2);
-  flex: 1;
-}
 .pullup-day-badge {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
@@ -336,8 +319,6 @@ body {
   border-radius: 100px;
   white-space: nowrap;
 }
-.history-day .log { margin-bottom: 8px; }
-.history-day .log:last-child { margin-bottom: 0; }
 
 /* ========== BOTTOM NAV ========== */
 .bottom-nav {
@@ -870,4 +851,32 @@ button:disabled { opacity: 0.35; cursor: not-allowed; }
   color: var(--warm);
   background: color-mix(in srgb, var(--warm) 8%, transparent);
   border-color: color-mix(in srgb, var(--warm) 25%, transparent);
+}
+
+/* storico: un allenamento = una riga */
+.log.riga { padding: 10px 14px; margin-bottom: 6px; }
+.log.riga .log-toggle,
+.log.solo-conteggi {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto 12px;
+  align-items: center;
+  gap: 12px;
+}
+.log-data {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.log-riassunto.vuoto { color: var(--text-3); font-weight: 400; font-style: italic; }
+.log-badge-giorno { display: flex; gap: 6px; }
+.log-badge-giorno .pullup-day-badge { padding: 1px 8px; }
+.badge-corto { display: none; }
+.log-corpo .log-conta { display: block; margin-bottom: 10px; }
+@media (max-width: 480px) {
+  .log.riga .log-toggle, .log.solo-conteggi { gap: 8px; }
+  .log-badge-giorno { gap: 4px; }
+  .log-badge-giorno .pullup-day-badge { padding: 1px 6px; }
+  .badge-lungo { display: none; }
+  .badge-corto { display: inline; }
 }
