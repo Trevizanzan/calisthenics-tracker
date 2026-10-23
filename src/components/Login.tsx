@@ -27,8 +27,8 @@ export function Login() {
     <main className="login">
       <form className="login-card" onSubmit={entra}>
         <div className="brand">
-          <div className="brand-mark">/// training log</div>
-          <h1 className="brand-title">Muscle <span className="accent">Up</span></h1>
+          <div className="brand-mark">/// calisthenics</div>
+          <h1 className="brand-title">Diario <span className="accent">Allenamenti</span></h1>
         </div>
         <p className="login-sub">Accesso riservato.</p>
 

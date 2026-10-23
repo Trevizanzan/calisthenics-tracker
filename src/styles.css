@@ -875,11 +875,15 @@ button:disabled { opacity: 0.35; cursor: not-allowed; }
 }
 .nav-btn:hover { color: var(--text); }
 .nav-btn.active { background: var(--accent); color: var(--on-accent); }
-@media (max-width: 600px) {
-  /* su telefono le sezioni vanno su una riga loro, a tutta larghezza */
-  .sezioni { order: 3; width: 100%; }
-  .nav-btn { flex: 1; }
-}
+/* Sempre su una riga loro, sotto il titolo, a tutta larghezza. */
+.sezioni { order: 3; width: 100%; }
+.nav-btn { flex: 1; }
 .history-top .history-title { white-space: nowrap; }
 .history-comandi { flex-wrap: nowrap; }
 .history-comandi .log-btn { white-space: nowrap; }
+/* Su telefono resta solo il pallino: così stato e menu stanno accanto al titolo. */
+.header .brand { min-width: 0; }
+@media (max-width: 480px) {
+  .sync-testo { display: none; }
+  .sync-row { padding: 8px; }
+}

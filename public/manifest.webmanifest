@@ -1,6 +1,6 @@
 {
-  "name": "Muscle Up",
-  "short_name": "Muscle Up",
+  "name": "Diario Allenamenti",
+  "short_name": "Allenamenti",
   "description": "Il tracker degli allenamenti di calisthenics.",
   "start_url": "/",
   "display": "standalone",

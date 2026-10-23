@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Single-page calisthenics workout tracking app ("Muscle Up") built with React + TypeScript + Vite. Data lives in
+Single-page calisthenics workout tracking app ("Diario Allenamenti", fino al 23/10/2026 "Muscle Up") built with React + TypeScript + Vite. Data lives in
 the **hub** — the shared Supabase project also used by the `ricettario` app — in its own schema
 (`calisthenics`). Authentication is **email + password** (Supabase Auth), same account as `ricettario`:
 one person, one login, shared across apps. Deployed on **Vercel**.
@@ -96,8 +96,8 @@ src/
     ContatorePullup.tsx   — pull-up giornalieri, salvataggio con debounce 1s
     Storico.tsx           — un allenamento = una riga (data, esercizi, badge pull-up/muscle up); si espande/comprime
                             (di partenza tutti chiusi e dal più recente; "recenti/vecchi prima", "espandi/comprimi tutti"), "ripeti", "elimina"
-    Navigazione.tsx       — sezioni Allenamento/Storico in alto nell'intestazione, come scontrini/ricettario
-                            (su telefono una riga a tutta larghezza sotto il titolo)
+    Navigazione.tsx       — sezioni Allenamento/Storico in alto, sotto il titolo, come scontrini/ricettario
+                            (una riga a tutta larghezza)
     Menu.tsx              — menu ⋯: modalità, tema, dimensione testo, esci
 supabase/migrations/
   001, 002                — storiche: il vecchio progetto standalone, non applicate da nessuna parte

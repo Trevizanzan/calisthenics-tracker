@@ -103,14 +103,14 @@ function AppAutenticata({ userId }: { userId: string }) {
       <div className="app">
         <header className="header">
           <div className="brand">
-            <div className="brand-mark">/// training log</div>
-            <h1 className="brand-title">Muscle <span className="accent">Up</span></h1>
+            <div className="brand-mark">/// calisthenics</div>
+            <h1 className="brand-title">Diario <span className="accent">Allenamenti</span></h1>
           </div>
           <Navigazione vista={vista} onVista={setVista} />
           <div className="header-destra">
-            <div className="sync-row">
+            <div className="sync-row" title={stato === 'ok' ? 'sincronizzato' : stato === 'errore' ? 'errore connessione' : 'caricamento...'}>
               <span className={`sync-dot ${stato === 'ok' ? 'ok' : stato === 'errore' ? 'err' : 'loading'}`} />
-              <span>{stato === 'ok' ? 'sincronizzato' : stato === 'errore' ? 'errore connessione' : 'caricamento...'}</span>
+              <span className="sync-testo">{stato === 'ok' ? 'sincronizzato' : stato === 'errore' ? 'errore connessione' : 'caricamento...'}</span>
             </div>
             <Menu onEsci={() => supabase.auth.signOut()} />
           </div>
