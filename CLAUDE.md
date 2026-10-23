@@ -42,6 +42,9 @@ Lo stile originale è il tema **Neon** in modalità notte, ed è il predefinito.
 - **Warm:** `#ff7a45` (orange), **Cool:** `#5dc4ff` (blue), **Danger:** `#ff5470` (red)
 - **Fonts:** "Bricolage Grotesque" (body) + "JetBrains Mono" (monospace)
 - Mobile-first responsive layout
+- Unica eccezione (23/10, richiesta esplicita): i grigi del testo secondario sono più chiari
+  nelle modalità scure (Neon: `--text-2` #c2c2bc, `--text-3` #94948d) perché sul nero erano poco
+  leggibili; nelle modalità chiare `--text-3` è un po' più scuro per lo stesso motivo.
 
 Dal 21/10 (richiesta esplicita) dal menu ⋯ si scelgono anche altri temi, la modalità giorno/notte/auto
 e la dimensione del testo. Come funziona:

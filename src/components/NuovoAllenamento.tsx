@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Allenamento, Bozza, Esercizio } from '../types'
 import { bozzaVuota, nuovoBlocco, testoSerie, ultimaVolta } from '../lib/bozza'
 import { salvaAllenamento } from '../lib/dati'
-import { dataLeggibile } from '../lib/date'
+import { dataBreve, dataLeggibile } from '../lib/date'
 import { NOME_CATEGORIA } from '../lib/categorie'
 import { ContatorePullup } from './ContatorePullup'
 import { SceltaEsercizio } from './SceltaEsercizio'
@@ -109,9 +109,10 @@ export function NuovoAllenamento(p: Props) {
           const prima = ultimaVolta(p.storico, es.id)
           const unita = es.misura === 'rip' ? 'rip' : 'sec'
           return (
-            <div key={b.chiave} className={`ex-card ${es.categoria === 'mobilita' ? 'mobility' : ''}`}>
+            <div key={b.chiave} className={`ex-card compatta ${es.categoria === 'mobilita' ? 'mobility' : ''}`}>
               <div className="ex-header">
                 <div className="ex-top">
+                  <span className="ex-name">{es.nome}</span>
                   <span className="ex-tag">{NOME_CATEGORIA[es.categoria]}</span>
                   <span className="ex-tools">
                     <button className="icon-btn" onClick={() => sposta(i, -1)} disabled={i === 0} aria-label="Sposta su">↑</button>
@@ -119,11 +120,14 @@ export function NuovoAllenamento(p: Props) {
                     <button className="icon-btn danger" onClick={() => modificaBlocco(b.chiave, () => null)} aria-label="Togli esercizio">✕</button>
                   </span>
                 </div>
-                <div className="ex-name">{es.nome}</div>
-                {es.descrizione && <div className="ex-desc">{es.descrizione}</div>}
-                {prima && (
-                  <div className="ex-target">
-                    ultima volta ({dataLeggibile(prima.data)}): {prima.serie.map(testoSerie).join(' · ')}
+                {(es.descrizione || prima) && (
+                  <div className="ex-info">
+                    {es.descrizione && <span className="ex-desc">{es.descrizione}</span>}
+                    {prima && (
+                      <span className="ex-target" title={`ultima volta, ${dataLeggibile(prima.data)}`}>
+                        ↺ {dataBreve(prima.data)}: {prima.serie.map(testoSerie).join(' · ')}
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -148,11 +152,11 @@ export function NuovoAllenamento(p: Props) {
                     )}
                   </div>
                 ))}
+                <button className="add-set"
+                  onClick={() => modificaBlocco(b.chiave, (bl) => ({ ...bl, serie: [...bl.serie, { ...bl.serie[bl.serie.length - 1] }] }))}>
+                  + serie
+                </button>
               </div>
-              <button className="add-set"
-                onClick={() => modificaBlocco(b.chiave, (bl) => ({ ...bl, serie: [...bl.serie, { ...bl.serie[bl.serie.length - 1] }] }))}>
-                + serie
-              </button>
             </div>
           )
         })}
